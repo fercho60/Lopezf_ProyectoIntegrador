@@ -1,0 +1,280 @@
+openapi: 3.0.3
+info:
+  title: Servicio UTNGolCoin - UTN GolMundial 2026
+  description: >
+    Contrato REST que el Servicio UTNGolCoin (ASP.NET Core Web API + MySQL) debe implementar.
+    Cubre unicamente los endpoints que consume el frontend publico: billetera, transacciones,
+    predicciones 1X2, ranking y bono diario. Todos los endpoints exigen el JWT emitido por el
+    Servicio de Estadisticas, salvo el ranking que es publico.
+  version: 1.0.0
+servers:
+  - url: http://localhost:5200/api/v1
+    description: Entorno local de desarrollo
+tags:
+  - name: Billetera
+  - name: Predicciones
+  - name: Ranking
+  - name: Bonos
+security:
+  - tokenPortador: []
+paths:
+  /billeteras/mi-billetera:
+    get:
+      tags: [Billetera]
+      summary: Consultar el saldo de la billetera del usuario autenticado
+      operationId: obtenerMiBilletera
+      responses:
+        '200':
+          description: Billetera del usuario
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Billetera'
+        '401':
+          description: Token ausente o invalido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /billeteras/mi-billetera/transacciones:
+    get:
+      tags: [Billetera]
+      summary: Consultar el historial de transacciones del usuario autenticado
+      description: Ledger inmutable ordenado de mas reciente a mas antigua (RF14).
+      operationId: listarMisTransacciones
+      responses:
+        '200':
+          description: Historial de transacciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Transaccion'
+        '401':
+          description: Token ausente o invalido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /predicciones:
+    post:
+      tags: [Predicciones]
+      summary: Crear una prediccion 1X2
+      description: >
+        Reglas obligatorias: saldo suficiente (RF16), una unica prediccion por usuario y
+        partido (RF18), rechazo si el partido ya inicio (RF17). El monto se debita de la
+        billetera como transaccion del ledger. La cuota aplicada queda congelada en la prediccion.
+      operationId: crearPrediccion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudPrediccion'
+      responses:
+        '201':
+          description: Prediccion registrada y monto debitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prediccion'
+        '401':
+          description: Token ausente o invalido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Ya existe una prediccion del usuario para ese partido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Saldo insuficiente, monto invalido o partido ya iniciado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      tags: [Predicciones]
+      summary: Listar las predicciones del usuario autenticado
+      operationId: listarMisPredicciones
+      responses:
+        '200':
+          description: Predicciones con su estado (RF22)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Prediccion'
+        '401':
+          description: Token ausente o invalido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /ranking:
+    get:
+      tags: [Ranking]
+      summary: Ranking publico de usuarios por saldo y aciertos
+      operationId: obtenerRanking
+      security: []
+      responses:
+        '200':
+          description: Clasificacion ordenada por saldo y luego por aciertos (RF21)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EntradaRanking'
+  /bonos-diarios/reclamar:
+    post:
+      tags: [Bonos]
+      summary: Reclamar el bono diario anti-bancarrota
+      description: >
+        Acredita 1 UTNGolCoin si el saldo del usuario es cero y no ha recibido el bono
+        en la fecha actual (RF20). El frontend lo invoca al iniciar sesion.
+      operationId: reclamarBonoDiario
+      responses:
+        '200':
+          description: Resultado del reclamo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultadoBonoDiario'
+        '401':
+          description: Token ausente o invalido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    tokenPortador:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT emitido por el Servicio de Estadisticas en /autenticacion/sesion.
+  schemas:
+    Billetera:
+      type: object
+      required: [usuarioId, saldo]
+      properties:
+        usuarioId:
+          type: integer
+          format: int64
+        saldo:
+          type: number
+          format: double
+          description: Saldo actual en UTNGolCoin.
+          example: 12.5
+    Transaccion:
+      type: object
+      required: [id, tipo, concepto, monto, fechaHora]
+      properties:
+        id:
+          type: integer
+          format: int64
+        tipo:
+          type: string
+          enum: [BONO_BIENVENIDA, PREDICCION, PREMIO, BONO_DIARIO]
+        concepto:
+          type: string
+          example: 'Prediccion: Argentina vs Brasil'
+        monto:
+          type: number
+          format: double
+          description: Positivo acredita, negativo debita.
+          example: -5
+        fechaHora:
+          type: string
+          format: date-time
+    SolicitudPrediccion:
+      type: object
+      required: [partidoId, pronostico, monto]
+      properties:
+        partidoId:
+          type: integer
+          format: int64
+        pronostico:
+          type: string
+          enum: [LOCAL, EMPATE, VISITANTE]
+        monto:
+          type: number
+          format: double
+          minimum: 1
+          example: 5
+    Prediccion:
+      type: object
+      required: [id, partidoId, pronostico, monto, cuotaAplicada, estado, fechaHora]
+      properties:
+        id:
+          type: integer
+          format: int64
+        partidoId:
+          type: integer
+          format: int64
+        descripcionPartido:
+          type: string
+          example: Argentina vs Brasil
+        pronostico:
+          type: string
+          enum: [LOCAL, EMPATE, VISITANTE]
+        monto:
+          type: number
+          format: double
+        cuotaAplicada:
+          type: number
+          format: double
+          example: 1.8
+        estado:
+          type: string
+          enum: [PENDIENTE, GANADA, PERDIDA]
+        premioPagado:
+          type: number
+          format: double
+          nullable: true
+          description: Monto por cuota, solo cuando la prediccion resulta GANADA (RF19).
+        fechaHora:
+          type: string
+          format: date-time
+    EntradaRanking:
+      type: object
+      required: [posicion, nombreUsuario, saldo, predicciones, aciertos]
+      properties:
+        posicion:
+          type: integer
+        nombreUsuario:
+          type: string
+          example: Diego Rodriguez
+        saldo:
+          type: number
+          format: double
+        predicciones:
+          type: integer
+        aciertos:
+          type: integer
+    ResultadoBonoDiario:
+      type: object
+      required: [otorgado]
+      properties:
+        otorgado:
+          type: boolean
+          description: Verdadero si se acredito 1 UTNGolCoin en este reclamo.
+        mensaje:
+          type: string
+          example: Se acredito 1 UTNGolCoin de bono diario.
+    Error:
+      type: object
+      required: [codigo, mensaje]
+      properties:
+        codigo:
+          type: string
+          example: SALDO_INSUFICIENTE
+        mensaje:
+          type: string
+          example: El saldo disponible no cubre el monto de la prediccion.

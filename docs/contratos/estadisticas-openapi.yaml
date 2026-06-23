@@ -1,0 +1,370 @@
+openapi: 3.0.3
+info:
+  title: Servicio de Estadisticas - UTN GolMundial 2026
+  description: >
+    Contrato REST que el Servicio de Estadisticas (Jakarta EE + PostgreSQL sobre WildFly/Linux)
+    debe implementar. Cubre unicamente los endpoints que consume el frontend publico.
+    La autenticacion de usuarios se centraliza en este servicio.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Entorno local de desarrollo
+tags:
+  - name: Autenticacion
+  - name: Selecciones
+  - name: Grupos
+  - name: Partidos
+  - name: Estadisticas
+paths:
+  /autenticacion/registro:
+    post:
+      tags: [Autenticacion]
+      summary: Registrar un usuario nuevo
+      description: >
+        Crea la cuenta con rol "usuario". Tras crearla, este servicio debe notificar al
+        Servicio UTNGolCoin para crear la billetera y acreditar el bono de bienvenida
+        de 10 UTNGolCoin como transaccion del ledger (RF01).
+      operationId: registrarUsuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudRegistro'
+      responses:
+        '201':
+          description: Usuario creado y sesion iniciada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaSesion'
+        '409':
+          description: El correo ya esta registrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '422':
+          description: Datos de registro invalidos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /autenticacion/sesion:
+    post:
+      tags: [Autenticacion]
+      summary: Iniciar sesion
+      operationId: iniciarSesion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudSesion'
+      responses:
+        '200':
+          description: Credenciales validas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RespuestaSesion'
+        '401':
+          description: Credenciales incorrectas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /selecciones:
+    get:
+      tags: [Selecciones]
+      summary: Listar las 48 selecciones participantes
+      operationId: listarSelecciones
+      responses:
+        '200':
+          description: Lista de selecciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Seleccion'
+  /grupos:
+    get:
+      tags: [Grupos]
+      summary: Listar los 12 grupos con su tabla de posiciones
+      description: Las posiciones se actualizan automaticamente al registrarse cada resultado oficial (RF06).
+      operationId: listarGrupos
+      responses:
+        '200':
+          description: Grupos con posiciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grupo'
+  /partidos:
+    get:
+      tags: [Partidos]
+      summary: Listar el calendario de los 104 partidos
+      operationId: listarPartidos
+      parameters:
+        - name: estado
+          in: query
+          description: Filtra por estado del partido
+          schema:
+            type: string
+            enum: [PROGRAMADO, EN_JUEGO, FINALIZADO]
+        - name: grupo
+          in: query
+          description: Filtra por nombre de grupo (ej. "Grupo A")
+          schema:
+            type: string
+        - name: fase
+          in: query
+          description: Filtra por fase del torneo
+          schema:
+            type: string
+            enum: [FASE_DE_GRUPOS, DIECISEISAVOS, OCTAVOS, CUARTOS, SEMIFINAL, TERCER_PUESTO, FINAL]
+        - name: fecha
+          in: query
+          description: Filtra por fecha (AAAA-MM-DD)
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de partidos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Partido'
+  /partidos/{partidoId}:
+    get:
+      tags: [Partidos]
+      summary: Consultar el detalle de un partido
+      operationId: obtenerPartido
+      parameters:
+        - name: partidoId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Detalle del partido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partido'
+        '404':
+          description: Partido no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /estadisticas/selecciones:
+    get:
+      tags: [Estadisticas]
+      summary: Estadisticas acumuladas por seleccion
+      description: Partidos jugados, ganados, empatados, perdidos, goles a favor y en contra (RF07).
+      operationId: listarEstadisticasSelecciones
+      responses:
+        '200':
+          description: Estadisticas por seleccion
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EstadisticaSeleccion'
+components:
+  schemas:
+    SolicitudRegistro:
+      type: object
+      required: [nombre, correo, contrasena]
+      properties:
+        nombre:
+          type: string
+          example: Diego Rodriguez
+        correo:
+          type: string
+          format: email
+          example: diego@utn.edu.ec
+        contrasena:
+          type: string
+          format: password
+          minLength: 8
+          description: Se almacena unicamente su hash seguro (RNF04).
+    SolicitudSesion:
+      type: object
+      required: [correo, contrasena]
+      properties:
+        correo:
+          type: string
+          format: email
+        contrasena:
+          type: string
+          format: password
+    RespuestaSesion:
+      type: object
+      required: [token, usuario]
+      properties:
+        token:
+          type: string
+          description: JWT firmado que el frontend adjunta como Bearer en llamadas a ambos servicios.
+        usuario:
+          $ref: '#/components/schemas/Usuario'
+    Usuario:
+      type: object
+      required: [id, nombre, correo, rol]
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 7
+        nombre:
+          type: string
+          example: Diego Rodriguez
+        correo:
+          type: string
+          format: email
+        rol:
+          type: string
+          enum: [administrador, usuario, invitado]
+    Seleccion:
+      type: object
+      required: [id, nombre, codigoPais, grupo]
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+          example: Ecuador
+        codigoPais:
+          type: string
+          description: Codigo ISO 3166-1 alfa-2 para mostrar la bandera.
+          example: EC
+        grupo:
+          type: string
+          example: Grupo A
+    Grupo:
+      type: object
+      required: [id, nombre, posiciones]
+      properties:
+        id:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+          example: Grupo A
+        posiciones:
+          type: array
+          description: Ordenadas de mejor a peor posicion.
+          items:
+            $ref: '#/components/schemas/PosicionEquipo'
+    PosicionEquipo:
+      type: object
+      required: [seleccion, jugados, ganados, empatados, perdidos, golesFavor, golesContra, puntos]
+      properties:
+        seleccion:
+          $ref: '#/components/schemas/Seleccion'
+        jugados:
+          type: integer
+        ganados:
+          type: integer
+        empatados:
+          type: integer
+        perdidos:
+          type: integer
+        golesFavor:
+          type: integer
+        golesContra:
+          type: integer
+        puntos:
+          type: integer
+    Partido:
+      type: object
+      required: [id, seleccionLocal, seleccionVisitante, fechaHora, sede, fase, estado, cuotas]
+      properties:
+        id:
+          type: integer
+          format: int64
+        seleccionLocal:
+          $ref: '#/components/schemas/Seleccion'
+        seleccionVisitante:
+          $ref: '#/components/schemas/Seleccion'
+        fechaHora:
+          type: string
+          format: date-time
+          example: '2026-06-14T20:00:00Z'
+        sede:
+          type: string
+          example: Estadio Azteca, Ciudad de Mexico
+        fase:
+          type: string
+          enum: [FASE_DE_GRUPOS, DIECISEISAVOS, OCTAVOS, CUARTOS, SEMIFINAL, TERCER_PUESTO, FINAL]
+        grupo:
+          type: string
+          nullable: true
+          example: Grupo A
+        estado:
+          type: string
+          enum: [PROGRAMADO, EN_JUEGO, FINALIZADO]
+        golesLocal:
+          type: integer
+          nullable: true
+        golesVisitante:
+          type: integer
+          nullable: true
+        cuotas:
+          $ref: '#/components/schemas/CuotasPartido'
+    CuotasPartido:
+      type: object
+      description: Cuotas fijas del partido para la liquidacion de predicciones 1X2.
+      required: [local, empate, visitante]
+      properties:
+        local:
+          type: number
+          format: double
+          example: 1.8
+        empate:
+          type: number
+          format: double
+          example: 3.2
+        visitante:
+          type: number
+          format: double
+          example: 2.5
+    EstadisticaSeleccion:
+      type: object
+      required: [seleccion, jugados, ganados, empatados, perdidos, golesFavor, golesContra]
+      properties:
+        seleccion:
+          $ref: '#/components/schemas/Seleccion'
+        jugados:
+          type: integer
+        ganados:
+          type: integer
+        empatados:
+          type: integer
+        perdidos:
+          type: integer
+        golesFavor:
+          type: integer
+        golesContra:
+          type: integer
+    Error:
+      type: object
+      required: [codigo, mensaje]
+      properties:
+        codigo:
+          type: string
+          example: CORREO_DUPLICADO
+        mensaje:
+          type: string
+          example: El correo ya esta registrado.
