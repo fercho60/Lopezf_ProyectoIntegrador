@@ -1,0 +1,76 @@
+@model Partido
+@{
+    ViewData["Titulo"] = $"{Model.SeleccionLocal.Nombre} vs {Model.SeleccionVisitante.Nombre}";
+}
+
+<a asp-action="Indice" class="btn btn-sm btn-contorno-suave mb-3"><i class="bi bi-arrow-left me-1"></i>Volver al calendario</a>
+
+<div class="tarjeta mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <span class="text-body-secondary">@(Model.Grupo ?? "Eliminatorias")</span>
+        <partial name="_EstadoPartido" model="Model.Estado" />
+    </div>
+    <div class="row align-items-center text-center mb-4">
+        <div class="col-4">
+            <div class="bandera fs-1">@Model.SeleccionLocal.Bandera</div>
+            <h2 class="titulo-pagina fs-3 mt-2">@Model.SeleccionLocal.Nombre</h2>
+        </div>
+        <div class="col-4">
+            <div class="marcador display-4">@Model.Marcador</div>
+        </div>
+        <div class="col-4">
+            <div class="bandera fs-1">@Model.SeleccionVisitante.Bandera</div>
+            <h2 class="titulo-pagina fs-3 mt-2">@Model.SeleccionVisitante.Nombre</h2>
+        </div>
+    </div>
+    <div class="row text-center text-body-secondary g-2">
+        <div class="col-md-4"><i class="bi bi-calendar3 me-1"></i>@Model.FechaHora.ToString("dddd d 'de' MMMM 'de' yyyy")</div>
+        <div class="col-md-4"><i class="bi bi-clock me-1"></i>@Model.FechaHora.ToString("HH:mm") horas</div>
+        <div class="col-md-4"><i class="bi bi-geo-alt me-1"></i>@Model.Sede</div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="tarjeta h-100">
+            <h3 class="titulo-pagina fs-4 mb-3">Cuotas del partido</h3>
+            <div class="row text-center g-2">
+                <div class="col-4">
+                    <div class="tarjeta">
+                        <div class="text-body-secondary small mb-1">Gana @Model.SeleccionLocal.Nombre</div>
+                        <div class="fs-3 fw-bold text-success">@Model.Cuotas.Local.ToString("0.0#")</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="tarjeta">
+                        <div class="text-body-secondary small mb-1">Empate</div>
+                        <div class="fs-3 fw-bold text-success">@Model.Cuotas.Empate.ToString("0.0#")</div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="tarjeta">
+                        <div class="text-body-secondary small mb-1">Gana @Model.SeleccionVisitante.Nombre</div>
+                        <div class="fs-3 fw-bold text-success">@Model.Cuotas.Visitante.ToString("0.0#")</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="tarjeta h-100 d-flex flex-column justify-content-center text-center">
+            @if (Model.AdmitePredicciones)
+            {
+                <p class="text-body-secondary">Las predicciones cierran automáticamente al inicio del encuentro.</p>
+                <a asp-controller="Predicciones" asp-action="Crear" asp-route-partidoId="@Model.Id" class="btn btn-success btn-lg fw-bold">
+                    <i class="bi bi-lightning-charge me-1"></i>Crear predicción
+                </a>
+            }
+            else
+            {
+                <p class="text-body-secondary mb-0">
+                    <i class="bi bi-lock me-1"></i>Las predicciones de este partido están cerradas.
+                </p>
+            }
+        </div>
+    </div>
+</div>

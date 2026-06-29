@@ -1,0 +1,37 @@
+@model List<EntradaRanking>
+@{
+    ViewData["Titulo"] = "Ranking";
+}
+
+<h1 class="titulo-pagina fs-2 mb-1">Ranking de <span class="acento">usuarios</span></h1>
+<p class="text-body-secondary mb-4">Clasificación pública ordenada por saldo de UTNGolCoin y aciertos acumulados.</p>
+
+<div class="tarjeta">
+    <div class="table-responsive">
+        <table class="table tabla-gol">
+            <thead>
+                <tr>
+                    <th style="width:3rem">#</th>
+                    <th>Usuario</th>
+                    <th class="text-center">Predicciones</th>
+                    <th class="text-center">Aciertos</th>
+                    <th class="text-end">Saldo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var entrada in Model)
+                {
+                    <tr>
+                        <td class="fw-bold @(entrada.Posicion <= 3 ? "text-warning" : "")">
+                            @(entrada.Posicion <= 3 ? "🏆" : "") @entrada.Posicion
+                        </td>
+                        <td><span class="avatar-usuario me-2">@entrada.Iniciales</span>@entrada.NombreUsuario</td>
+                        <td class="text-center">@entrada.Predicciones</td>
+                        <td class="text-center text-success fw-bold">@entrada.Aciertos</td>
+                        <td class="text-end text-warning fw-bold">@entrada.Saldo.ToString("0.##") UGC</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
