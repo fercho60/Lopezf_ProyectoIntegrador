@@ -1,0 +1,48 @@
+@model ModeloRegistro
+@{
+    ViewData["Titulo"] = "Registro";
+}
+
+<div class="tarjeta tarjeta-formulario">
+    <div class="text-center mb-4">
+        <span class="logo-marca d-inline-flex mb-2" style="width:3rem;height:3rem"><i class="bi bi-person-plus fs-4"></i></span>
+        <h1 class="titulo-pagina fs-3">Crear cuenta</h1>
+        <p class="text-body-secondary mb-0">Recibe <strong class="text-warning">10 UTNGolCoin</strong> de bienvenida al registrarte.</p>
+    </div>
+
+    <form asp-action="Registro" method="post" novalidate>
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+        <div class="mb-3">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" placeholder="Ej. Fernanda Torres" autocomplete="name" />
+            <span asp-validation-for="Nombre" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Correo" class="form-label"></label>
+            <input asp-for="Correo" class="form-control" placeholder="correo@utn.edu.ec" autocomplete="email" />
+            <span asp-validation-for="Correo" class="text-danger small"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Contrasena" class="form-label"></label>
+            <input asp-for="Contrasena" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="Contrasena" class="text-danger small"></span>
+        </div>
+        <div class="mb-4">
+            <label asp-for="ConfirmacionContrasena" class="form-label"></label>
+            <input asp-for="ConfirmacionContrasena" class="form-control" autocomplete="new-password" />
+            <span asp-validation-for="ConfirmacionContrasena" class="text-danger small"></span>
+        </div>
+        <button type="submit" class="btn btn-success w-100 fw-bold">Registrarme</button>
+    </form>
+
+    <p class="text-center text-body-secondary mt-3 mb-0">
+        ¿Ya tienes cuenta? <a asp-action="Iniciar">Inicia sesión</a>
+    </p>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.20.0/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
+}
