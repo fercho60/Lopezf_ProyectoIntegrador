@@ -1,0 +1,56 @@
+@model ModeloBilletera
+@{
+    ViewData["Titulo"] = "Billetera";
+}
+
+<h1 class="titulo-pagina fs-2 mb-1">Mi <span class="acento">billetera</span></h1>
+<p class="text-body-secondary mb-4">Saldo disponible e historial completo de transacciones.</p>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-5 col-lg-4">
+        <div class="tarjeta text-center h-100 d-flex flex-column justify-content-center">
+            <div class="text-body-secondary small text-uppercase mb-1">Saldo disponible</div>
+            <div class="display-4 fw-bold text-warning"><i class="bi bi-coin fs-2 me-1"></i>@Model.Saldo.ToString("0.##")</div>
+            <div class="text-body-secondary">UTNGolCoin</div>
+        </div>
+    </div>
+    <div class="col-md-7 col-lg-8">
+        <div class="tarjeta h-100">
+            <h2 class="titulo-pagina fs-4 mb-3">Historial de transacciones</h2>
+            @if (!Model.Transacciones.Any())
+            {
+                <p class="text-body-secondary mb-0">Aún no tienes movimientos registrados.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table tabla-gol">
+                        <thead>
+                            <tr>
+                                <th>Concepto</th>
+                                <th>Fecha</th>
+                                <th class="text-end">Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var transaccion in Model.Transacciones)
+                            {
+                                var esCredito = transaccion.Monto >= 0;
+                                <tr>
+                                    <td>
+                                        <i class="bi @(esCredito ? "bi-arrow-down-circle text-success" : "bi-arrow-up-circle text-danger") me-2"></i>
+                                        @transaccion.Concepto
+                                    </td>
+                                    <td class="text-body-secondary">@transaccion.FechaHora.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="text-end fw-bold @(esCredito ? "text-success" : "text-danger")">
+                                        @(esCredito ? "+" : "")@transaccion.Monto.ToString("0.##") UGC
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>

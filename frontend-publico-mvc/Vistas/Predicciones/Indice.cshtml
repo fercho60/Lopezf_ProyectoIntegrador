@@ -1,0 +1,90 @@
+@model List<Prediccion>
+@{
+    ViewData["Titulo"] = "Mis predicciones";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+    <h1 class="titulo-pagina fs-2 mb-0">Mis <span class="acento">predicciones</span></h1>
+    <a asp-controller="Calendario" asp-action="Indice" asp-route-estado="programado" class="btn btn-success fw-bold">
+        <i class="bi bi-lightning-charge me-1"></i>Nueva predicción
+    </a>
+</div>
+<p class="text-body-secondary mb-4">Estado de tus predicciones: pendiente, ganada o perdida.</p>
+
+@if (!Model.Any())
+{
+    <div class="tarjeta text-center text-body-secondary">
+        <i class="bi bi-stars fs-2 d-block mb-2"></i>
+        Todavía no has hecho predicciones. Elige un partido programado y participa con tus UTNGolCoin.
+    </div>
+}
+else
+{
+    <div class="tarjeta">
+        <div class="table-responsive">
+            <table class="table tabla-gol">
+                <thead>
+                    <tr>
+                        <th>Partido</th>
+                        <th>Pronóstico</th>
+                        <th class="text-center">Monto</th>
+                        <th class="text-center">Cuota</th>
+                        <th class="text-center">Premio</th>
+                        <th class="text-center">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prediccion in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Calendario" asp-action="Detalle" asp-route-id="@prediccion.PartidoId">
+                                    @prediccion.DescripcionPartido
+                                </a>
+                                <div class="text-body-secondary small">@prediccion.FechaHora.ToString("dd/MM/yyyy HH:mm")</div>
+                            </td>
+                            <td>
+                                @(prediccion.Pronostico switch
+                                {
+                                    Pronostico.Local => "Gana local",
+                                    Pronostico.Empate => "Empate",
+                                    _ => "Gana visitante"
+                                })
+                            </td>
+                            <td class="text-center">@prediccion.Monto.ToString("0.##") UGC</td>
+                            <td class="text-center text-success fw-bold">@prediccion.CuotaAplicada.ToString("0.0#")</td>
+                            <td class="text-center">
+                                @if (prediccion.Estado == EstadoPrediccion.Ganada)
+                                {
+                                    <span class="text-success fw-bold">+@(prediccion.PremioPagado?.ToString("0.##")) UGC</span>
+                                }
+                                else if (prediccion.Estado == EstadoPrediccion.Pendiente)
+                                {
+                                    <span class="text-body-secondary">@prediccion.PremioPotencial.ToString("0.##") UGC posibles</span>
+                                }
+                                else
+                                {
+                                    <span class="text-body-secondary">—</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                @switch (prediccion.Estado)
+                                {
+                                    case EstadoPrediccion.Ganada:
+                                        <span class="insignia-estado en-juego"><i class="bi bi-trophy"></i>GANADA</span>
+                                        break;
+                                    case EstadoPrediccion.Perdida:
+                                        <span class="insignia-estado finalizado"><i class="bi bi-x-circle"></i>PERDIDA</span>
+                                        break;
+                                    default:
+                                        <span class="insignia-estado programado"><i class="bi bi-hourglass-split"></i>PENDIENTE</span>
+                                        break;
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
