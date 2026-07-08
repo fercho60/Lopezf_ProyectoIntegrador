@@ -1,5 +1,7 @@
-# Frontend Administrativo (pendiente)
+# Frontend administrativo (Persona 3)
 
-Aplicación web en **JSF (Jakarta Faces) con PrimeFaces**, de diseño sobrio tipo panel de control. Lidera la Persona 3.
+Aplicación web **ASP.NET Core MVC (.NET 10)** — panel de control del torneo.
+Repositorio principal: [PumaJoel_ProyectoIntegrador](https://github.com/JoelPuma2004/PumaJoel_ProyectoIntegrador.git).
 
-Responsabilidades: gestión de selecciones y partidos, registro de resultados oficiales, gestión de usuarios y roles, reportes básicos y vista de auditoría. Consume las APIs REST de los dos backends; no accede directamente a ninguna base de datos.
+Responsabilidades: partidos, selecciones, registro de resultados oficiales, estado de servicios y autenticación de administrador.
+Consume las APIs REST de Estadísticas (Guacales); no accede directamente a bases de datos.
