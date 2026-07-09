@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: Servicio de Estadisticas - UTN GolMundial 2026
+  description: API del Servicio de Estadisticas. Autenticacion, selecciones, grupos, sedes, partidos, resultados y estadisticas.
+  version: 1.0.0
+servers:
+  - url: /demo/api/v1
+paths:
+  /autenticacion/registro:
+    post:
+      summary: Registrar un usuario nuevo
+      tags: [Autenticacion]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nombre, correo, contrasena]
+              properties:
+                nombre:
+                  type: string
+                  example: Diego Rodriguez
+                correo:
+                  type: string
+                  example: diego@utn.edu.ec
+                contrasena:
+                  type: string
+                  example: claveSegura123
+      responses:
+        '201':
+          description: Usuario creado y sesion iniciada
+        '409':
+          description: El correo ya esta registrado
+        '422':
+          description: Datos de registro invalidos
+  /autenticacion/sesion:
+    post:
+      summary: Iniciar sesion
+      tags: [Autenticacion]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [correo, contrasena]
+              properties:
+                correo:
+                  type: string
+                contrasena:
+                  type: string
+      responses:
+        '200':
+          description: Credenciales validas
+        '401':
+          description: Credenciales incorrectas
+  /selecciones:
+    get:
+      summary: Listar las 48 selecciones participantes
+      tags: [Selecciones]
+      responses:
+        '200':
+          description: Lista de selecciones
+  /grupos:
+    get:
+      summary: Listar los 12 grupos con su tabla de posiciones
+      tags: [Grupos]
+      responses:
+        '200':
+          description: Grupos con posiciones actualizadas
+  /sedes:
+    get:
+      summary: Listar las sedes del torneo
+      tags: [Sedes]
+      responses:
+        '200':
+          description: Lista de sedes
+  /sedes/{id}:
+    get:
+      summary: Obtener una sede por ID
+      tags: [Sedes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Sede encontrada
+        '404':
+          description: Sede no encontrada
+  /partidos:
+    get:
+      summary: Listar el calendario de partidos
+      tags: [Partidos]
+      parameters:
+        - name: estado
+          in: query
+          schema:
+            type: string
+            enum: [PROGRAMADO, EN_JUEGO, FINALIZADO]
+        - name: grupo
+          in: query
+          schema:
+            type: string
+          example: Grupo A
+        - name: fase
+          in: query
+          schema:
+            type: string
+        - name: fecha
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Lista de partidos
+  /partidos/{partidoId}:
+    get:
+      summary: Consultar el detalle de un partido
+      tags: [Partidos]
+      parameters:
+        - name: partidoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Detalle del partido
+        '404':
+          description: Partido no encontrado
+  /partidos/{partidoId}/resultado:
+    put:
+      summary: Registrar el resultado oficial de un partido
+      description: Actualiza el marcador y recalcula automaticamente la tabla de posiciones del grupo
+      tags: [Partidos]
+      parameters:
+        - name: partidoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [golesLocal, golesVisitante]
+              properties:
+                golesLocal:
+                  type: integer
+                  example: 2
+                golesVisitante:
+                  type: integer
+                  example: 1
+      responses:
+        '200':
+          description: Resultado registrado y posiciones actualizadas
+        '404':
+          description: Partido no encontrado
+        '422':
+          description: Resultado invalido
+  /estadisticas/selecciones:
+    get:
+      summary: Estadisticas acumuladas por seleccion
+      tags: [Estadisticas]
+      responses:
+        '200':
+          description: Estadisticas por seleccion

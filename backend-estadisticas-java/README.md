@@ -1,13 +1,24 @@
-# Servicio de Estadísticas (pendiente)
+# Servicio de Estadísticas
 
-Servicio backend API REST en **Jakarta EE (JAX-RS, JPA/Hibernate) sobre WildFly**, con base de datos **PostgreSQL** y despliegue obligatorio sobre **Linux**. Lidera la Persona 1.
+Copia de integración del backend de **Persona 1** ([GuacalesA_ProyectoIntegrador](https://github.com/Andrea25102025/GuacalesA_ProyectoIntegrador.git)).
 
-Responsabilidades: autenticación de usuarios, selecciones, grupos, sedes, calendario de partidos, resultados, tablas de posiciones y estadísticas por selección.
+- Tecnología: Jakarta EE (JAX-RS, JPA) sobre WildFly + PostgreSQL
+- Código fuente: carpeta [`demo/`](demo/)
+- Guía de instalación: [`README-SETUP.md`](README-SETUP.md)
 
-## Contrato a implementar
+## Dirección base (local)
 
-El frontend público ya consume este contrato mediante servicios simulados:
+```
+http://localhost:8080/demo/api/v1
+```
 
-- [`docs/contratos/estadisticas-openapi.yaml`](../docs/contratos/estadisticas-openapi.yaml)
+Los frontends públicos de este monorepo (`frontend-estadisticas-mvc` y `frontend-publico-mvc`) consumen esa URL para calendario, posiciones, estadísticas y autenticación.
 
-Al registrarse un resultado oficial, este servicio debe notificar al Servicio UTNGolCoin para la liquidación de predicciones (RF12).
+## Endpoints principales
+
+- `POST /autenticacion/registro` y `POST /autenticacion/sesion`
+- `GET /selecciones`, `/grupos`, `/sedes`, `/partidos`, `/partidos/{id}`
+- `PUT /partidos/{id}/resultado`
+- `GET /estadisticas/selecciones`
+
+Swagger: `http://localhost:8080/demo/swagger-ui.html`
