@@ -1,0 +1,55 @@
+@model ModeloCalendario
+@{
+    ViewData["Titulo"] = "Calendario";
+}
+
+<h1 class="titulo-pagina fs-2 mb-1">Calendario de <span class="acento">partidos</span></h1>
+<p class="text-body-secondary mb-4">Los 104 partidos del torneo con fecha, hora, sede y estado.</p>
+
+<form method="get" class="row g-2 mb-4">
+    <div class="col-sm-4 col-lg-3">
+        <select name="estado" class="form-select" aria-label="Filtrar por estado" onchange="this.form.submit()">
+            @{
+                var estados = new (string Valor, string Etiqueta)[]
+                {
+                    ("", "Todos los estados"),
+                    ("programado", "Programados"),
+                    ("en-juego", "En juego"),
+                    ("finalizado", "Finalizados"),
+                };
+            }
+            @foreach (var (valor, etiqueta) in estados)
+            {
+                <option value="@valor" selected="@(Model.FiltroEstado == valor || (valor == "" && Model.FiltroEstado is null))">@etiqueta</option>
+            }
+        </select>
+    </div>
+    <div class="col-sm-4 col-lg-3">
+        <select name="grupo" class="form-select" aria-label="Filtrar por grupo" onchange="this.form.submit()">
+            <option value="" selected="@(Model.FiltroGrupo is null or "")">Todos los grupos</option>
+            @foreach (var grupo in Model.GruposDisponibles)
+            {
+                <option value="@grupo" selected="@(Model.FiltroGrupo == grupo)">@grupo</option>
+            }
+        </select>
+    </div>
+</form>
+
+@if (!Model.Partidos.Any())
+{
+    <div class="tarjeta text-center text-body-secondary">
+        <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+        No hay partidos que coincidan con los filtros seleccionados.
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var partido in Model.Partidos)
+        {
+            <div class="col-md-6 col-xl-4">
+                <partial name="_TarjetaPartido" model="partido" />
+            </div>
+        }
+    </div>
+}

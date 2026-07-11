@@ -1,0 +1,262 @@
+/* Tema adaptativo UTN GolMundial 2026 — paleta basada en el prototipo de alta fidelidad */
+
+:root {
+    --gol-verde: #22c55e;
+    --gol-verde-oscuro: #15803d;
+    --fuente-titulos: "Barlow Condensed", sans-serif;
+    --fuente-texto: "Inter", system-ui, sans-serif;
+}
+
+[data-bs-theme="dark"] {
+    --gol-fondo: #060b18;
+    --gol-superficie: #0c1426;
+    --gol-borde: rgba(255, 255, 255, 0.08);
+    --bs-body-bg: var(--gol-fondo);
+    --bs-body-color: #e8ecf4;
+}
+
+[data-bs-theme="light"] {
+    --gol-fondo: #f4f6fb;
+    --gol-superficie: #ffffff;
+    --gol-borde: rgba(10, 25, 47, 0.1);
+    --bs-body-bg: var(--gol-fondo);
+    --bs-body-color: #101828;
+}
+
+body {
+    font-family: var(--fuente-texto);
+    background:
+        radial-gradient(ellipse at top, color-mix(in srgb, var(--gol-verde) 7%, transparent), transparent 60%),
+        var(--gol-fondo);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ── Navegación ─────────────────────────────────────────────── */
+.barra-navegacion {
+    background: color-mix(in srgb, var(--gol-fondo) 92%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--gol-borde);
+}
+
+.logo-marca {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    background: var(--gol-verde);
+    color: #04121f;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.texto-marca {
+    font-family: var(--fuente-titulos);
+    font-weight: 800;
+    font-size: 1.35rem;
+    letter-spacing: 0.12em;
+}
+
+.insignia-monedas {
+    background: linear-gradient(135deg, #facc15, #f59e0b);
+    color: #1f1300;
+    font-weight: 700;
+    border-radius: 2rem;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.btn-contorno-suave {
+    border: 1px solid var(--gol-borde);
+    color: var(--bs-body-color);
+}
+
+.btn-contorno-suave:hover {
+    border-color: var(--gol-verde);
+    color: var(--gol-verde);
+}
+
+/* ── Estructura ─────────────────────────────────────────────── */
+.contenido-principal {
+    padding-top: 6rem;
+    padding-bottom: 3rem;
+    flex: 1;
+}
+
+.pie-pagina {
+    border-top: 1px solid var(--gol-borde);
+    padding: 1.25rem 0;
+    font-size: 0.9rem;
+}
+
+.titulo-pagina {
+    font-family: var(--fuente-titulos);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.titulo-pagina .acento {
+    color: var(--gol-verde);
+}
+
+/* ── Tarjetas ───────────────────────────────────────────────── */
+.tarjeta {
+    background: var(--gol-superficie);
+    border: 1px solid var(--gol-borde);
+    border-radius: 1rem;
+    padding: 1.25rem;
+}
+
+.tarjeta-partido {
+    transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.tarjeta-partido:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--gol-verde) 50%, transparent);
+}
+
+.equipo {
+    width: 38%;
+}
+
+.bandera {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.nombre-equipo {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-top: 0.35rem;
+}
+
+.marcador {
+    font-family: var(--fuente-titulos);
+    font-weight: 800;
+    font-size: 1.6rem;
+    white-space: nowrap;
+}
+
+/* ── Insignias de estado ────────────────────────────────────── */
+.insignia-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 2rem;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.insignia-estado.en-juego {
+    background: rgba(34, 197, 94, 0.18);
+    color: var(--gol-verde);
+}
+
+.insignia-estado.programado {
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+}
+
+.insignia-estado.finalizado {
+    background: color-mix(in srgb, var(--bs-body-color) 12%, transparent);
+    color: color-mix(in srgb, var(--bs-body-color) 55%, transparent);
+}
+
+.punto-vivo {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--gol-verde);
+    animation: pulso 1.2s infinite;
+}
+
+@keyframes pulso {
+    50% { opacity: 0.35; }
+}
+
+/* ── Héroe de la página de inicio ───────────────────────────── */
+.heroe {
+    background:
+        linear-gradient(120deg, color-mix(in srgb, var(--gol-verde) 16%, transparent), transparent 65%),
+        var(--gol-superficie);
+    border: 1px solid var(--gol-borde);
+    border-radius: 1.25rem;
+    padding: 3rem 2rem;
+}
+
+.heroe h1 {
+    font-family: var(--fuente-titulos);
+    font-weight: 800;
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ── Tablas ─────────────────────────────────────────────────── */
+.tabla-gol {
+    --bs-table-bg: transparent;
+    margin-bottom: 0;
+}
+
+.tabla-gol th {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: color-mix(in srgb, var(--bs-body-color) 55%, transparent);
+    border-color: var(--gol-borde);
+}
+
+.tabla-gol td {
+    border-color: var(--gol-borde);
+    vertical-align: middle;
+}
+
+.avatar-usuario {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--gol-verde), #0d9488);
+    color: #04121f;
+    font-weight: 700;
+    font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ── Formularios ────────────────────────────────────────────── */
+.tarjeta-formulario {
+    max-width: 430px;
+    margin: 0 auto;
+}
+
+.opcion-pronostico input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.opcion-pronostico label {
+    display: block;
+    border: 1px solid var(--gol-borde);
+    border-radius: 0.75rem;
+    padding: 0.9rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.opcion-pronostico input[type="radio"]:checked + label {
+    border-color: var(--gol-verde);
+    background: rgba(34, 197, 94, 0.12);
+}
+
+.opcion-pronostico .cuota {
+    color: var(--gol-verde);
+    font-weight: 700;
+}

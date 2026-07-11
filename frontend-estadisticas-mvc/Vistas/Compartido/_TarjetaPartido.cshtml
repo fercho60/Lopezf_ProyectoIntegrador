@@ -1,0 +1,37 @@
+@model Partido
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuracion
+@{
+    var urlApuestas = (Configuracion["Frontends:ApuestasUrl"] ?? "http://localhost:5081").TrimEnd('/');
+}
+<div class="tarjeta tarjeta-partido h-100">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-body-secondary small">@(Model.Grupo ?? "Eliminatorias")</span>
+        <partial name="_EstadoPartido" model="Model.Estado" />
+    </div>
+    <div class="d-flex justify-content-between align-items-center text-center mb-3">
+        <div class="equipo">
+            <div class="bandera">@Model.SeleccionLocal.Bandera</div>
+            <div class="nombre-equipo">@Model.SeleccionLocal.Nombre</div>
+        </div>
+        <div class="marcador">@Model.Marcador</div>
+        <div class="equipo">
+            <div class="bandera">@Model.SeleccionVisitante.Bandera</div>
+            <div class="nombre-equipo">@Model.SeleccionVisitante.Nombre</div>
+        </div>
+    </div>
+    <div class="text-body-secondary small mb-3">
+        <div><i class="bi bi-calendar3 me-1"></i>@Model.FechaHora.ToString("dddd d 'de' MMMM, HH:mm")</div>
+        <div><i class="bi bi-geo-alt me-1"></i>@Model.Sede</div>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-controller="Calendario" asp-action="Detalle" asp-route-id="@Model.Id" class="btn btn-sm btn-contorno-suave flex-fill">
+            Ver detalle
+        </a>
+        @if (Model.AdmitePredicciones)
+        {
+            <a href="@urlApuestas/Predicciones/Crear?partidoId=@Model.Id" class="btn btn-sm btn-success fw-bold flex-fill">
+                <i class="bi bi-lightning-charge me-1"></i>Apostar
+            </a>
+        }
+    </div>
+</div>

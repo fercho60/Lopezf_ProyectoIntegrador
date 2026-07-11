@@ -1,0 +1,57 @@
+@model List<Grupo>
+@{
+    ViewData["Titulo"] = "Posiciones";
+}
+
+<h1 class="titulo-pagina fs-2 mb-1">Tablas de <span class="acento">posiciones</span></h1>
+<p class="text-body-secondary mb-4">Se actualizan automáticamente al registrarse cada resultado oficial.</p>
+
+<div class="row g-3">
+    @foreach (var grupo in Model)
+    {
+        <div class="col-lg-6">
+            <div class="tarjeta">
+                <h2 class="titulo-pagina fs-4 mb-3">@grupo.Nombre</h2>
+                <div class="table-responsive">
+                    <table class="table tabla-gol">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Selección</th>
+                                <th class="text-center">PJ</th>
+                                <th class="text-center">PG</th>
+                                <th class="text-center">PE</th>
+                                <th class="text-center">PP</th>
+                                <th class="text-center">GF</th>
+                                <th class="text-center">GC</th>
+                                <th class="text-center">DG</th>
+                                <th class="text-center">Pts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < grupo.Posiciones.Count; i++)
+                            {
+                                var fila = grupo.Posiciones[i];
+                                <tr>
+                                    <td class="@(i < 2 ? "text-success fw-bold" : "")">@(i + 1)</td>
+                                    <td>@fila.Seleccion.Bandera @fila.Seleccion.Nombre</td>
+                                    <td class="text-center">@fila.Jugados</td>
+                                    <td class="text-center">@fila.Ganados</td>
+                                    <td class="text-center">@fila.Empatados</td>
+                                    <td class="text-center">@fila.Perdidos</td>
+                                    <td class="text-center">@fila.GolesFavor</td>
+                                    <td class="text-center">@fila.GolesContra</td>
+                                    <td class="text-center">@(fila.DiferenciaGoles >= 0 ? "+" : "")@fila.DiferenciaGoles</td>
+                                    <td class="text-center fw-bold">@fila.Puntos</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-body-secondary small mb-0 mt-2">
+                    <span class="text-success">■</span> Clasifican a la siguiente fase
+                </p>
+            </div>
+        </div>
+    }
+</div>

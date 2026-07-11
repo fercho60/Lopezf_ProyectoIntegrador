@@ -1,0 +1,15 @@
+@{
+    ViewData["Titulo"] = "Error";
+}
+
+<div class="tarjeta text-center" style="max-width:560px;margin:3rem auto">
+    <i class="bi bi-plug fs-1 text-warning d-block mb-3"></i>
+    <h1 class="titulo-pagina fs-3">Algo salió mal</h1>
+    <p class="text-body-secondary">
+        Ocurrió un error inesperado o uno de los servicios no está disponible.
+        El resto de la plataforma sigue funcionando: puedes continuar navegando.
+    </p>
+    <a asp-controller="Inicio" asp-action="Indice" class="btn btn-success fw-bold">
+        <i class="bi bi-house me-1"></i>Volver al inicio
+    </a>
+</div>

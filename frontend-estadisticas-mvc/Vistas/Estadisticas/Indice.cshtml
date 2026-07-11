@@ -1,0 +1,66 @@
+@model List<EstadisticaSeleccion>
+@{
+    ViewData["Titulo"] = "Estadísticas";
+    var maximoGoles = Model.Count > 0 ? Math.Max(Model.Max(e => e.GolesFavor), 1) : 1;
+}
+
+<h1 class="titulo-pagina fs-2 mb-1">Estadísticas por <span class="acento">selección</span></h1>
+<p class="text-body-secondary mb-4">Partidos jugados, ganados, empatados y perdidos; goles a favor y en contra.</p>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="tarjeta">
+            <h2 class="titulo-pagina fs-4 mb-3">Tabla general</h2>
+            <div class="table-responsive">
+                <table class="table tabla-gol">
+                    <thead>
+                        <tr>
+                            <th>Selección</th>
+                            <th class="text-center">PJ</th>
+                            <th class="text-center">PG</th>
+                            <th class="text-center">PE</th>
+                            <th class="text-center">PP</th>
+                            <th class="text-center">GF</th>
+                            <th class="text-center">GC</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var fila in Model)
+                        {
+                            <tr>
+                                <td>@fila.Seleccion.Bandera @fila.Seleccion.Nombre</td>
+                                <td class="text-center">@fila.Jugados</td>
+                                <td class="text-center text-success">@fila.Ganados</td>
+                                <td class="text-center">@fila.Empatados</td>
+                                <td class="text-center text-danger">@fila.Perdidos</td>
+                                <td class="text-center fw-bold">@fila.GolesFavor</td>
+                                <td class="text-center">@fila.GolesContra</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="tarjeta h-100">
+            <h2 class="titulo-pagina fs-4 mb-3">Goles a favor</h2>
+            <div class="d-flex flex-column gap-3">
+                @foreach (var fila in Model.OrderByDescending(e => e.GolesFavor).Take(8))
+                {
+                    var porcentaje = (int)Math.Round(fila.GolesFavor * 100.0 / maximoGoles);
+                    <div>
+                        <div class="d-flex justify-content-between small mb-1">
+                            <span>@fila.Seleccion.Bandera @fila.Seleccion.Nombre</span>
+                            <span class="fw-bold">@fila.GolesFavor</span>
+                        </div>
+                        <div class="progress" role="progressbar" aria-label="Goles de @fila.Seleccion.Nombre"
+                             aria-valuenow="@fila.GolesFavor" aria-valuemin="0" aria-valuemax="@maximoGoles" style="height:0.5rem">
+                            <div class="progress-bar bg-success" style="width:@(porcentaje)%"></div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

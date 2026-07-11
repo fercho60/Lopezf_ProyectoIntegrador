@@ -1,0 +1,13 @@
+@model EstadoPartido
+@switch (Model)
+{
+    case EstadoPartido.EnJuego:
+        <span class="insignia-estado en-juego"><span class="punto-vivo"></span>EN JUEGO</span>
+        break;
+    case EstadoPartido.Programado:
+        <span class="insignia-estado programado"><i class="bi bi-clock"></i>PROGRAMADO</span>
+        break;
+    default:
+        <span class="insignia-estado finalizado"><i class="bi bi-check-circle"></i>FINALIZADO</span>
+        break;
+}

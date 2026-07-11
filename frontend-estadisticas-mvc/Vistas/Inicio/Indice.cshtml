@@ -1,0 +1,68 @@
+@model ModeloInicio
+@{
+    ViewData["Titulo"] = "Inicio";
+}
+
+<section class="heroe mb-4">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <span class="insignia-estado en-juego mb-3"><span class="punto-vivo"></span>MUNDIAL 2026 · EE. UU. · MÉXICO · CANADÁ</span>
+            <h1 class="mt-3">Estadísticas del<br /><span class="text-success">Mundial 2026</span></h1>
+            <p class="text-body-secondary fs-5 mb-4">
+                Consulta calendario, posiciones y estadísticas como invitado.
+                Para predicciones con UTNGolCoin, entra al portal de apuestas (registro obligatorio).
+            </p>
+            <div class="d-flex gap-2 flex-wrap">
+                <a asp-controller="Calendario" asp-action="Indice" class="btn btn-lg btn-contorno-suave">
+                    <i class="bi bi-calendar-event me-1"></i>Ver partidos
+                </a>
+                <a href="@Model.UrlApuestas" class="btn btn-success btn-lg fw-bold">
+                    <i class="bi bi-lightning-charge me-1"></i>Ir a apuestas y registrarme
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@if (Model.EstadisticasNoDisponibles)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-plug me-2"></i>El servicio de estadísticas no está disponible en este momento.
+        El calendario y las posiciones volverán a mostrarse cuando se restablezca la conexión.
+    </div>
+}
+else
+{
+    @if (Model.PartidosEnJuego.Any())
+    {
+        <h2 class="titulo-pagina fs-3 mb-3"><span class="acento">●</span> En juego ahora</h2>
+        <div class="row g-3 mb-4">
+            @foreach (var partido in Model.PartidosEnJuego)
+            {
+                <div class="col-md-6 col-xl-4">
+                    <partial name="_TarjetaPartido" model="partido" />
+                </div>
+            }
+        </div>
+    }
+
+    <h2 class="titulo-pagina fs-3 mb-3">Próximos partidos</h2>
+    <div class="row g-3 mb-4">
+        @foreach (var partido in Model.ProximosPartidos)
+        {
+            <div class="col-md-6 col-xl-3">
+                <partial name="_TarjetaPartido" model="partido" />
+            </div>
+        }
+    </div>
+}
+
+<div class="tarjeta p-4">
+    <h2 class="titulo-pagina fs-4">¿Quieres apostar con UTNGolCoin?</h2>
+    <p class="text-body-secondary mb-3">
+        El portal de apuestas incluye estadísticas más predicciones 1X2. Debes registrarte para apostar.
+    </p>
+    <a href="@Model.UrlApuestas" class="btn btn-success fw-bold">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Abrir portal de apuestas
+    </a>
+</div>
