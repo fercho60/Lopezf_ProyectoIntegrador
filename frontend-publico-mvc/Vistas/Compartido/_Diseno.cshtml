@@ -1,4 +1,5 @@
 @inject FrontendPublico.Servicios.IServicioMonedas ServicioMonedas
+@inject Microsoft.Extensions.Configuration.IConfiguration Configuracion
 @{
     var estaAutenticado = User.Identity?.IsAuthenticated == true;
     decimal saldo = 0;
@@ -10,6 +11,7 @@
     string ClaseNav(string controlador) =>
         string.Equals((string?)ViewContext.RouteData.Values["controller"], controlador, StringComparison.OrdinalIgnoreCase)
             ? "nav-link active" : "nav-link";
+    var urlEstadisticas = Configuracion["Frontends:EstadisticasUrl"] ?? "http://localhost:5080";
 }
 <!DOCTYPE html>
 <html lang="es" data-bs-theme="dark">
@@ -36,7 +38,7 @@
         <div class="container-xl">
             <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Inicio" asp-action="Indice">
                 <span class="logo-marca"><i class="bi bi-trophy-fill"></i></span>
-                <span class="texto-marca">UTN GOL<span class="text-success">MUNDIAL</span></span>
+                <span class="texto-marca">UTN GOL<span class="text-success">APUESTAS</span></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
                     aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
@@ -48,9 +50,9 @@
                     <li class="nav-item"><a class="@ClaseNav("Posiciones")" asp-controller="Posiciones" asp-action="Indice"><i class="bi bi-trophy me-1"></i>Posiciones</a></li>
                     <li class="nav-item"><a class="@ClaseNav("Estadisticas")" asp-controller="Estadisticas" asp-action="Indice"><i class="bi bi-bar-chart me-1"></i>Estadísticas</a></li>
                     <li class="nav-item"><a class="@ClaseNav("Ranking")" asp-controller="Ranking" asp-action="Indice"><i class="bi bi-star me-1"></i>Ranking</a></li>
+                    <li class="nav-item"><a class="@ClaseNav("Predicciones")" asp-controller="Predicciones" asp-action="Indice"><i class="bi bi-lightning-charge me-1"></i>Predecir</a></li>
                     @if (estaAutenticado)
                     {
-                        <li class="nav-item"><a class="@ClaseNav("Predicciones")" asp-controller="Predicciones" asp-action="Indice"><i class="bi bi-lightning-charge me-1"></i>Predecir</a></li>
                         <li class="nav-item"><a class="@ClaseNav("Billetera")" asp-controller="Billetera" asp-action="Indice"><i class="bi bi-wallet2 me-1"></i>Billetera</a></li>
                     }
                 </ul>
@@ -73,6 +75,7 @@
                     }
                     else
                     {
+                        <a class="btn btn-sm btn-contorno-suave" href="@urlEstadisticas">Solo estadísticas</a>
                         <a class="btn btn-sm btn-contorno-suave" asp-controller="Cuenta" asp-action="Iniciar">Iniciar sesión</a>
                         <a class="btn btn-sm btn-success fw-bold" asp-controller="Cuenta" asp-action="Registro">
                             <i class="bi bi-person-plus me-1"></i>Registrarse
@@ -92,8 +95,8 @@
 
     <footer class="pie-pagina">
         <div class="container-xl d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-            <span><i class="bi bi-trophy-fill text-success me-1"></i>UTN GolMundial 2026 — Proyecto Integrador UTN</span>
-            <span class="text-body-secondary small">UTNGolCoin es una moneda ficticia con fines académicos, sin valor monetario real.</span>
+            <span><i class="bi bi-trophy-fill text-success me-1"></i>Portal de apuestas — registro obligatorio para predecir</span>
+            <a class="small" href="@urlEstadisticas">Volver al portal de estadísticas (invitado)</a>
         </div>
     </footer>
 
