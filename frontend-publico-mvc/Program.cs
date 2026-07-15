@@ -1,5 +1,6 @@
 using System.Globalization;
 using FrontendPublico.Servicios;
+using FrontendPublico.Servicios.Http;
 using FrontendPublico.Servicios.Simulados;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -12,7 +13,6 @@ var constructor = WebApplication.CreateBuilder(args);
 
 constructor.Services.AddControllersWithViews();
 
-// Las vistas viven en /Vistas (en español) en lugar de /Views
 constructor.Services.Configure<RazorViewEngineOptions>(opciones =>
 {
     opciones.ViewLocationFormats.Clear();
@@ -30,13 +30,46 @@ constructor.Services
         opciones.ExpireTimeSpan = TimeSpan.FromHours(8);
     });
 
-// Almacén compartido de datos simulados y servicios de la fase UI-primero.
-// Cuando los backends estén listos, estas líneas se reemplazan por clientes HTTP
-// que implementen las mismas interfaces (ver docs/contratos/).
+var usarEstadisticasSimulado = constructor.Configuration.GetValue("Servicios:Estadisticas:UsarSimulado", false);
+var usarMonedasSimulado = constructor.Configuration.GetValue("Servicios:UTNGolCoin:UsarSimulado", false);
+var direccionEstadisticas = constructor.Configuration["Servicios:Estadisticas:DireccionBase"]
+    ?? "http://localhost:8080/demo/api/v1/";
+var direccionMonedas = constructor.Configuration["Servicios:UTNGolCoin:DireccionBase"]
+    ?? "http://localhost:5000/api/";
+
 constructor.Services.AddSingleton<AlmacenDatosSimulados>();
-constructor.Services.AddSingleton<IServicioEstadisticas, ServicioEstadisticasSimulado>();
-constructor.Services.AddSingleton<IServicioAutenticacion, ServicioAutenticacionSimulado>();
-constructor.Services.AddSingleton<IServicioMonedas, ServicioMonedasSimulado>();
+
+if (usarEstadisticasSimulado)
+{
+    constructor.Services.AddSingleton<IServicioEstadisticas, ServicioEstadisticasSimulado>();
+    constructor.Services.AddSingleton<IServicioAutenticacion, ServicioAutenticacionSimulado>();
+}
+else
+{
+    constructor.Services.AddHttpClient<IServicioEstadisticas, ServicioEstadisticasHttp>(cliente =>
+    {
+        cliente.BaseAddress = new Uri(direccionEstadisticas.EndsWith('/') ? direccionEstadisticas : direccionEstadisticas + "/");
+        cliente.Timeout = TimeSpan.FromSeconds(15);
+    });
+    constructor.Services.AddHttpClient<IServicioAutenticacion, ServicioAutenticacionHttp>(cliente =>
+    {
+        cliente.BaseAddress = new Uri(direccionEstadisticas.EndsWith('/') ? direccionEstadisticas : direccionEstadisticas + "/");
+        cliente.Timeout = TimeSpan.FromSeconds(15);
+    });
+}
+
+if (usarMonedasSimulado)
+{
+    constructor.Services.AddSingleton<IServicioMonedas, ServicioMonedasSimulado>();
+}
+else
+{
+    constructor.Services.AddHttpClient<IServicioMonedas, ServicioMonedasHttp>(cliente =>
+    {
+        cliente.BaseAddress = new Uri(direccionMonedas.EndsWith('/') ? direccionMonedas : direccionMonedas + "/");
+        cliente.Timeout = TimeSpan.FromSeconds(15);
+    });
+}
 
 var aplicacion = constructor.Build();
 
