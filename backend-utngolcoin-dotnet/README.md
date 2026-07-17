@@ -1,11 +1,33 @@
-# Servicio UTNGolCoin (pendiente)
+# Servicio UTNGolCoin
 
-Servicio backend API REST en **ASP.NET Core Web API** con **Entity Framework Core** y base de datos **MySQL**. Lidera la Persona 2.
+Copia de integración del backend de **Persona 2** ([SantacruzMayra_Proyecto_Integrador](https://github.com/Rocio7514/SantacruzMayra_Proyecto_Integrador.git)).
 
-Responsabilidades: billeteras, transacciones (ledger inmutable), predicciones 1X2, liquidación de premios, bono diario anti-bancarrota y ranking de usuarios.
+- Tecnología: ASP.NET Core Web API + EF Core + MySQL
+- Dirección base local: `http://localhost:5000/api/`
+- Consulta partidos en Guacales: `http://localhost:8080/demo/api/v1/`
 
-## Contrato a implementar
+## Configuración
 
-El frontend público ya consume este contrato mediante servicios simulados:
+Edita `appsettings.json`:
 
-- [`docs/contratos/utngolcoin-openapi.yaml`](../docs/contratos/utngolcoin-openapi.yaml)
+```json
+"ConnectionStrings": {
+  "Default": "server=localhost;port=3306;database=utngolcoin_db;user=root;password=TU_PASSWORD"
+},
+"ServicioEstadisticas": {
+  "BaseUrl": "http://localhost:8080/demo/api/v1/"
+}
+```
+
+## Ejecución
+
+```bash
+cd backend-utngolcoin-dotnet
+dotnet restore
+dotnet ef database update   # si aplica
+dotnet run --urls http://localhost:5000
+```
+
+Swagger: `http://localhost:5000/swagger`
+
+El frontend de apuestas (`frontend-publico-mvc`) consume esta API cuando `Servicios:UTNGolCoin:UsarSimulado` es `false`.
