@@ -25,6 +25,9 @@ Invitado (:5080) ──consulta──► Guacales :8080/demo/api/v1
 
 ## Cómo correr los frontends (Makefile)
 
+> Guía completa paso a paso para todo el equipo (incluye pruebas entre máquinas):
+> [`docs/GUIA-EJECUCION.md`](docs/GUIA-EJECUCION.md)
+
 Desde la **raíz del repositorio** (donde está el `Makefile`):
 
 ```bash
