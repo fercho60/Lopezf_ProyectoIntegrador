@@ -8,8 +8,8 @@ info:
     Servicio de Estadisticas, salvo el ranking que es publico.
   version: 1.0.0
 servers:
-  - url: http://localhost:5200/api/v1
-    description: Entorno local de desarrollo
+  - url: http://localhost:5000/api
+    description: UTNGolCoin API local (SantacruzMayra)
 tags:
   - name: Billetera
   - name: Predicciones

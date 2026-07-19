@@ -7,8 +7,8 @@ info:
     La autenticacion de usuarios se centraliza en este servicio.
   version: 1.0.0
 servers:
-  - url: http://localhost:8080/api/v1
-    description: Entorno local de desarrollo
+  - url: http://localhost:8080/demo/api/v1
+    description: WildFly local (contexto /demo del WAR Guacales)
 tags:
   - name: Autenticacion
   - name: Selecciones
