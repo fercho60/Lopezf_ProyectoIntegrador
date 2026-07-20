@@ -16,7 +16,7 @@
                 <a asp-controller="Calendario" asp-action="Indice" class="btn btn-lg btn-contorno-suave">
                     <i class="bi bi-calendar-event me-1"></i>Ver partidos
                 </a>
-                <a href="@Model.UrlApuestas" class="btn btn-success btn-lg fw-bold">
+                <a href="@Model.UrlApuestas" class="btn btn-success btn-lg fw-bold" target="_blank" rel="noopener noreferrer">
                     <i class="bi bi-lightning-charge me-1"></i>Ir a apuestas y registrarme
                 </a>
             </div>
@@ -62,7 +62,7 @@ else
     <p class="text-body-secondary mb-3">
         El portal de apuestas incluye estadísticas más predicciones 1X2. Debes registrarte para apostar.
     </p>
-    <a href="@Model.UrlApuestas" class="btn btn-success fw-bold">
+    <a href="@Model.UrlApuestas" class="btn btn-success fw-bold" target="_blank" rel="noopener noreferrer">
         <i class="bi bi-box-arrow-up-right me-1"></i>Abrir portal de apuestas
     </a>
 </div>

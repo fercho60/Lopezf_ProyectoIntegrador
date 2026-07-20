@@ -112,3 +112,26 @@ Verificación manual realizada (2026-07-13): rutas públicas 200, rutas protegid
 2. Clientes HTTP reales (`Servicios/Http/`) implementando las mismas interfaces + resiliencia (timeouts, reintentos) cuando los backends existan.
 3. Página de fases eliminatorias (RF09 ampliado) y estado de servicios.
 4. Pruebas automatizadas (unitarias de servicios simulados e integración con `WebApplicationFactory`).
+
+---
+
+## Split en dos frontends (hecho — 2026-07)
+
+El frontend público se separó en dos aplicaciones:
+
+| App | Puerto | Quién entra | Qué hace |
+|---|---|---|---|
+| `frontend-estadisticas-mvc` | 5080 | Invitado | Solo consulta (partidos, posiciones, estadísticas). CTA a apuestas en nueva pestaña. |
+| `frontend-publico-mvc` | 5081 | Usuario registrado para apostar | Consulta + cuenta + billetera + predicciones + ranking. |
+
+**Cómo se hizo:** se clonó el MVC a `frontend-estadisticas-mvc`, se quitaron auth/apuestas, se movió el portal completo a `:5081`, se cablearon clientes HTTP a Guacales (`/demo/api/v1`) y UTNGolCoin (`/api`), y se dejó `UsarSimulado` como default.
+
+**Cómo levantarlo:** desde la raíz del repo usar el `Makefile`:
+
+```bash
+make run    # ambos
+make stop   # liberar 5080/5081
+make help   # resto de targets
+```
+
+No encadenar `cd frontend-estadisticas-mvc && dotnet run` y luego `cd frontend-publico-mvc && ...` en la misma terminal: el primer `dotnet run` bloquea.

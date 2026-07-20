@@ -18,20 +18,38 @@ Plataforma web distribuida para el seguimiento estadístico y predicciones del M
 ```
 Invitado (:5080) ──consulta──► Guacales :8080/demo/api/v1
        │
-       └──link──► Apuestas (:5081) ──auth/stats──► Guacales
-                         │
-                         └──billetera/predicciones──► UTNGolCoin :5000/api
+       └──link (nueva pestaña)──► Apuestas (:5081) ──auth/stats──► Guacales
+                                         │
+                                         └──billetera/predicciones──► UTNGolCoin :5000/api
 ```
 
-## Ejecución de los frontends
+## Cómo correr los frontends (Makefile)
+
+Desde la **raíz del repositorio** (donde está el `Makefile`):
 
 ```bash
-# Portal de estadísticas (invitado)
-cd frontend-estadisticas-mvc && dotnet run    # http://localhost:5080
-
-# Portal de apuestas (registro obligatorio para predecir)
-cd frontend-publico-mvc && dotnet run         # http://localhost:5081
+make help          # lista de comandos
+make run           # ambos a la vez: :5080 + :5081
+make estadisticas  # solo invitado → http://localhost:5080
+make apuestas      # solo apuestas → http://localhost:5081
+make stop          # mata lo que use 5080 y 5081
+make status        # ver si los puertos están ocupados
+make build         # compilar ambos
 ```
+
+### Por qué no funciona `cd A && dotnet run` seguido de `cd B && ...`
+
+`dotnet run` **bloquea la terminal**. Si escribes las dos líneas en la misma sesión, la segunda nunca se ejecuta (o, si ya estabas dentro de una carpeta, el segundo `cd` falla y vuelves a levantar la misma app → “address already in use”).
+
+Soluciones correctas:
+
+1. **`make run`** (recomendado): levanta las dos apps en paralelo.
+2. **Dos terminales**: en una `make estadisticas`, en la otra `make apuestas`.
+3. Si un puerto quedó colgado: `make stop` y vuelve a `make run`.
+
+Requisito: [Make](https://www.gnu.org/software/make/) (viene en macOS/Linux) y SDK de .NET 9+.
+
+## Modo simulado vs APIs reales
 
 Por defecto `UsarSimulado=true` en ambos `appsettings.json` (datos en memoria).
 Para APIs reales:
@@ -43,12 +61,27 @@ Para APIs reales:
 }
 ```
 
-### Usuarios de prueba (modo simulado)
+### Usuarios de prueba (modo simulado, portal de apuestas)
 
 | Correo | Contraseña |
 |---|---|
 | `diego@utn.edu.ec` | `Clave123!` |
 | `maria@utn.edu.ec` | `Clave123!` |
+
+## Split del frontend público
+
+El frontend público se dividió en **dos aplicaciones ASP.NET** independientes:
+
+| App | Puerto | Acceso | Contiene |
+|---|---|---|---|
+| `frontend-estadisticas-mvc` | 5080 | Invitado (sin login) | Inicio, partidos, posiciones, estadísticas |
+| `frontend-publico-mvc` | 5081 | Registro obligatorio para apostar | Lo anterior + cuenta, billetera, predicciones, ranking |
+
+- En estadísticas, el CTA **“Ir a apuestas y registrarme”** abre el portal `:5081` en **nueva pestaña**.
+- En apuestas, hay enlace de vuelta al portal de estadísticas (invitado).
+- Ambas pueden consumir Guacales/UTNGolCoin por HTTP o usar simulados (`UsarSimulado`).
+
+Detalle del diseño: [`docs/plan/PLAN.md`](docs/plan/PLAN.md) y el plan de integración en Cursor.
 
 ## Backends
 
