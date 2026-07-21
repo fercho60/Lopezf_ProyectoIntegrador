@@ -33,23 +33,24 @@ public class ServicioEstadisticasHttp : IServicioEstadisticas
 
     public async Task<List<Partido>> ObtenerPartidosAsync(EstadoPartido? estado = null, string? grupo = null)
     {
-        var consulta = new List<string>();
+        // Guacales: GET /partidos sin filtro funciona; ?estado=PROGRAMADO puede devolver 500
+        // (bug Hibernate lazy de Grupo). Pedimos todo y filtramos aquí.
+        var json = await ObtenerJsonExitoAsync("partidos", "listar partidos");
+        var partidos = MapearLista(json, MapeoEstadisticasJson.APartido);
+
         if (estado.HasValue)
         {
-            consulta.Add($"estado={Uri.EscapeDataString(MapeoEstadisticasJson.EstadoAQuery(estado.Value))}");
+            partidos = partidos.Where(p => p.Estado == estado.Value).ToList();
         }
 
         if (!string.IsNullOrWhiteSpace(grupo))
         {
-            consulta.Add($"grupo={Uri.EscapeDataString(grupo)}");
+            partidos = partidos
+                .Where(p => string.Equals(p.Grupo, grupo, StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
 
-        var ruta = consulta.Count > 0
-            ? $"partidos?{string.Join("&", consulta)}"
-            : "partidos";
-
-        var json = await ObtenerJsonExitoAsync(ruta, "listar partidos");
-        return MapearLista(json, MapeoEstadisticasJson.APartido);
+        return partidos;
     }
 
     public async Task<Partido?> ObtenerPartidoAsync(long partidoId)

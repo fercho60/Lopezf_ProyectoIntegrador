@@ -14,10 +14,16 @@ public class PartidoRepository {
     @PersistenceContext(unitName = "guacalesPU")
     private EntityManager em;
 
+    // También se hace FETCH de seleccion*.grupo: al convertir el DTO se lee
+    // seleccion.getGrupo().getNombre(); sin esto, filtros como ?estado=PROGRAMADO
+    // fallan con "Could not initialize proxy ... Grupo#N - no Session"
+    // (los partidos de eliminación suelen tener p.grupo = null y no cargan esos grupos).
     private static final String BASE_QUERY =
-            "SELECT p FROM Partido p " +
-            "LEFT JOIN FETCH p.seleccionLocal " +
-            "LEFT JOIN FETCH p.seleccionVisitante " +
+            "SELECT DISTINCT p FROM Partido p " +
+            "LEFT JOIN FETCH p.seleccionLocal sl " +
+            "LEFT JOIN FETCH sl.grupo " +
+            "LEFT JOIN FETCH p.seleccionVisitante sv " +
+            "LEFT JOIN FETCH sv.grupo " +
             "LEFT JOIN FETCH p.sede " +
             "LEFT JOIN FETCH p.grupo " +
             "WHERE 1=1";
