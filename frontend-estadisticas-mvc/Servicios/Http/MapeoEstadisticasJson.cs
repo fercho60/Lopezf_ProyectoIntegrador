@@ -286,8 +286,14 @@ public static class MapeoEstadisticasJson
         return propiedad.TryGetInt32(out var valor) ? valor : null;
     }
 
-    private static decimal PropiedadDecimal(JsonElement el, string nombre) =>
-        el.TryGetProperty(nombre, out var propiedad) && propiedad.TryGetDecimal(out var valor)
-            ? valor
-            : 0m;
+    private static decimal PropiedadDecimal(JsonElement el, string nombre)
+    {
+        // Guacales envía cuotas en null cuando aún no están cargadas.
+        if (!el.TryGetProperty(nombre, out var propiedad) || propiedad.ValueKind == JsonValueKind.Null)
+        {
+            return 0m;
+        }
+
+        return propiedad.TryGetDecimal(out var valor) ? valor : 0m;
+    }
 }
