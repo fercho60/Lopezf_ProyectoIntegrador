@@ -33,7 +33,9 @@ else
     constructor.Services.AddHttpClient<IServicioEstadisticas, ServicioEstadisticasHttp>(cliente =>
     {
         cliente.BaseAddress = new Uri(direccionEstadisticas.EndsWith('/') ? direccionEstadisticas : direccionEstadisticas + "/");
-        cliente.Timeout = TimeSpan.FromSeconds(15);
+        cliente.Timeout = TimeSpan.FromSeconds(30);
+        // ngrok free exige este header; sin él a veces responde ERR_NGROK_6024
+        cliente.DefaultRequestHeaders.TryAddWithoutValidation("ngrok-skip-browser-warning", "true");
     });
     // Respaldo simulado si se necesita inyectar Almacen en otros sitios
     constructor.Services.AddSingleton<AlmacenDatosSimulados>();

@@ -49,12 +49,14 @@ else
     constructor.Services.AddHttpClient<IServicioEstadisticas, ServicioEstadisticasHttp>(cliente =>
     {
         cliente.BaseAddress = new Uri(direccionEstadisticas.EndsWith('/') ? direccionEstadisticas : direccionEstadisticas + "/");
-        cliente.Timeout = TimeSpan.FromSeconds(15);
+        cliente.Timeout = TimeSpan.FromSeconds(30);
+        cliente.DefaultRequestHeaders.TryAddWithoutValidation("ngrok-skip-browser-warning", "true");
     });
     constructor.Services.AddHttpClient<IServicioAutenticacion, ServicioAutenticacionHttp>(cliente =>
     {
         cliente.BaseAddress = new Uri(direccionEstadisticas.EndsWith('/') ? direccionEstadisticas : direccionEstadisticas + "/");
-        cliente.Timeout = TimeSpan.FromSeconds(15);
+        cliente.Timeout = TimeSpan.FromSeconds(30);
+        cliente.DefaultRequestHeaders.TryAddWithoutValidation("ngrok-skip-browser-warning", "true");
     });
 }
 
