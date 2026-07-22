@@ -5,7 +5,7 @@ namespace UTNGolCoinApi.Services;
 
 /// <summary>
 /// Información mínima de un partido consultada en el Servicio de Estadísticas (Guacales).
-/// Acepta tanto el shape plano (cuotaLocal) como el anidado de Guacales (cuotas.local + fechaHora).
+/// Acepta el shape plano (cuotaLocal) y el anidado de Guacales (cuotas.local + fechaHora).
 /// </summary>
 public class InfoPartidoDto
 {

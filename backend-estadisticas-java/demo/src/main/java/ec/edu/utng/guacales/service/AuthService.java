@@ -5,6 +5,7 @@ import ec.edu.utng.guacales.model.Usuario;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
@@ -19,6 +20,9 @@ public class AuthService {
 
     @PersistenceContext(unitName = "guacalesPU")
     private EntityManager em;
+
+    @Inject
+    private UtnGolCoinClient utnGolCoinClient;
 
     // Clave fija de 32+ caracteres solo para el entorno de desarrollo del proyecto.
     private static final SecretKey CLAVE_JWT =
@@ -59,9 +63,9 @@ public class AuthService {
         em.persist(u);
         em.flush();
 
-        // TODO (integracion con UTNGolCoin): aqui se debe notificar al Servicio UTNGolCoin
-        // para crear la billetera del usuario y acreditar el bono de bienvenida de 10 UTNGolCoin.
-        // Ejemplo futuro: llamar via HTTP/REST al endpoint de UTNGolCoin con el id del usuario creado.
+        // Integra con UTNGolCoin: billetera + bono de bienvenida (10 UGC).
+        // Si UTNGolCoin está caído, el registro en Estadísticas sigue siendo válido.
+        utnGolCoinClient.crearBilletera(u.getId());
 
         resultado.usuario = u;
         return resultado;

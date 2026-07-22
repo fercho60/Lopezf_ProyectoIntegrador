@@ -124,7 +124,9 @@ http://localhost:8080/demo/swagger-ui.html
 
 - CORS está habilitado (`Access-Control-Allow-Origin: *`), así que tu app puede llamar directo a estos endpoints sin bloqueos del navegador.
 - Cuando levantes el proyecto en tu propia máquina, `localhost:8080` te sirve directo — no necesitas la IP de red de nadie más.
-- Pendiente por integrar: notificación automática a UTNGolCoin al registrar un usuario (bono de bienvenida de 10 UTNGolCoin) — marcado como `// TODO` en `AuthService.java`.
+- Al **registrar un usuario**, este servicio notifica a UTNGolCoin (`POST http://localhost:5000/api/billeteras` con `{ "usuarioId": N }`) para crear la billetera y el bono de 10 UGC. Si UTNGolCoin no está arriba, el registro en Estadísticas igual se completa (solo se registra un warning en el log).
+- Al **registrar un resultado**, notifica `POST /api/liquidaciones/{partidoId}` para liquidar predicciones.
+- URL de UTNGolCoin configurable con variable de entorno `UTNGOLCOIN_BASE_URL` o propiedad JVM `-Dutngolcoin.baseUrl=...` (default `http://localhost:5000/api/`).
 
 ## Frontends públicos (espejo Persona 4)
 
@@ -142,3 +144,4 @@ cd frontend-publico-mvc && dotnet run       # http://localhost:5081
 
 Ambos apuntan por defecto a esta API en `http://localhost:8080/demo/api/v1/`.
 Con `Servicios:Estadisticas:UsarSimulado=true` (valor por defecto) usan datos en memoria sin WildFly.
+Para desarrollo integrado: `make run` desde la raíz (si hay `Makefile`) o dos terminales.

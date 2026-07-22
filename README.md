@@ -51,15 +51,10 @@ Requisito: [Make](https://www.gnu.org/software/make/) (viene en macOS/Linux) y S
 
 ## Modo simulado vs APIs reales
 
-Por defecto `UsarSimulado=true` en ambos `appsettings.json` (datos en memoria).
-Para APIs reales:
+Por defecto `UsarSimulado=true` (los frontends corren solos con `make run`).
+Para acoplar con backends reales: WildFly Guacales en el puerto 8080 + UTNGolCoin en el puerto 5000, y pon `UsarSimulado: false` en ambos `appsettings.json`.
 
-```json
-"Servicios": {
-  "Estadisticas": { "DireccionBase": "http://localhost:8080/demo/api/v1/", "UsarSimulado": false },
-  "UTNGolCoin":   { "DireccionBase": "http://localhost:5000/api/", "UsarSimulado": false }
-}
-```
+Guacales, al registrar usuario o resultado, llama a UTNGolCoin (`POST /api/billeteras` y `POST /api/liquidaciones/{id}`).
 
 ### Usuarios de prueba (modo simulado, portal de apuestas)
 

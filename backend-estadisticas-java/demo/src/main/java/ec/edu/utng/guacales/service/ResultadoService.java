@@ -3,6 +3,7 @@ package ec.edu.utng.guacales.service;
 import ec.edu.utng.guacales.model.Partido;
 import ec.edu.utng.guacales.model.Seleccion;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -12,6 +13,9 @@ public class ResultadoService {
 
     @PersistenceContext(unitName = "guacalesPU")
     private EntityManager em;
+
+    @Inject
+    private UtnGolCoinClient utnGolCoinClient;
 
     @Transactional
     public Partido registrarResultado(Long partidoId, Integer golesLocal, Integer golesVisitante) {
@@ -33,6 +37,9 @@ public class ResultadoService {
 
         aplicarEstadisticas(partido.getSeleccionLocal(), partido.getSeleccionVisitante(),
                 golesLocal, golesVisitante, 1);
+
+        // Notifica a UTNGolCoin para liquidar predicciones (RF12).
+        utnGolCoinClient.liquidarPartido(partidoId, golesLocal, golesVisitante);
 
         return partido;
     }
