@@ -83,8 +83,29 @@ public class PrediccionesController : Controller
         {
             ModelState.AddModelError(
                 string.Empty,
-                "No se pudo registrar la predicción: el servicio de monedas falló. Intenta de nuevo.");
-            return await ReintentarAsync();
+                "No se pudo registrar la predicción: el servicio de monedas no respondió. Revisa que UTNGolCoin esté arriba en la red.");
+            return await ReintentarSeguroAsync();
+        }
+        catch (TaskCanceledException)
+        {
+            // HttpClient.Timeout (15s) → TaskCanceledException, no HttpRequestException.
+            ModelState.AddModelError(
+                string.Empty,
+                "Tiempo de espera agotado al contactar UTNGolCoin (15s). La API de Mayra no responde en http://…:5000 — firewall, IP o proceso caído.");
+            return await ReintentarSeguroAsync();
+        }
+
+        async Task<IActionResult> ReintentarSeguroAsync()
+        {
+            try
+            {
+                return await ReintentarAsync();
+            }
+            catch
+            {
+                modelo.Partido ??= await _estadisticas.ObtenerPartidoAsync(modelo.PartidoId);
+                return View(modelo);
+            }
         }
     }
 }
