@@ -12,11 +12,16 @@ public class CuentaController : Controller
 {
     private readonly IServicioAutenticacion _autenticacion;
     private readonly IServicioMonedas _monedas;
+    private readonly ILogger<CuentaController> _bitacora;
 
-    public CuentaController(IServicioAutenticacion autenticacion, IServicioMonedas monedas)
+    public CuentaController(
+        IServicioAutenticacion autenticacion,
+        IServicioMonedas monedas,
+        ILogger<CuentaController> bitacora)
     {
         _autenticacion = autenticacion;
         _monedas = monedas;
+        _bitacora = bitacora;
     }
 
     [HttpGet]
@@ -71,11 +76,19 @@ public class CuentaController : Controller
 
         await CrearSesionAsync(usuario.Id, usuario.Nombre, usuario.Rol);
 
-        // RF20: bono diario anti-bancarrota al iniciar sesión con saldo cero
-        var bonoOtorgado = await _monedas.ReclamarBonoDiarioAsync(usuario.Id);
-        if (bonoOtorgado)
+        // RF20: bono diario anti-bancarrota. Si UTNGolCoin no responde, el login igual entra.
+        try
         {
-            TempData["Alerta"] = "Tu saldo estaba en cero: se acreditó 1 UTNGolCoin de bono diario para que sigas participando.";
+            var bonoOtorgado = await _monedas.ReclamarBonoDiarioAsync(usuario.Id);
+            if (bonoOtorgado)
+            {
+                TempData["Alerta"] = "Tu saldo estaba en cero: se acreditó 1 UTNGolCoin de bono diario para que sigas participando.";
+            }
+        }
+        catch (Exception excepcion)
+        {
+            _bitacora.LogWarning(excepcion, "No se pudo reclamar el bono diario (UTNGolCoin no disponible).");
+            TempData["Alerta"] = "Entraste correctamente, pero el servicio de monedas no está disponible ahora.";
         }
 
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
