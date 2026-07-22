@@ -28,33 +28,28 @@ Invitado (:5080) ──consulta──► Guacales :8080/demo/api/v1
 > Guía completa paso a paso para todo el equipo (incluye pruebas entre máquinas):
 > [`docs/GUIA-EJECUCION.md`](docs/GUIA-EJECUCION.md)
 
-Por defecto el `Makefile` levanta en **localhost** (una sola PC):
+Por defecto `make run` usa las IPs del equipo (escucha en `0.0.0.0`):
 
 | Portal | URL |
 |---|---|
-| Estadísticas | `http://localhost:5080` |
-| Apuestas | `http://localhost:5081` |
+| Estadísticas | `http://172.28.114.135:5080` |
+| Apuestas | `http://172.28.114.136:5081` |
 
 ```bash
 make run
-# En red local (misma máquina): usa TU IP en ambos
-make run BIND_EST=172.28.114.135 BIND_APU=172.28.114.135
-```
-
-Equivalente manual:
-
-```bash
-dotnet run --project frontend-estadisticas-mvc --urls "http://localhost:5080"
-dotnet run --project frontend-publico-mvc --urls "http://localhost:5081"
+# Solo en esta PC:
+make run BIND_EST=localhost:5080 BIND_APU=localhost:5081
+# Misma máquina en LAN:
+make run BIND_EST=172.28.114.135:5080 BIND_APU=172.28.114.135:5081
 ```
 
 Desde la **raíz del repositorio** (donde está el `Makefile`):
 
 ```bash
-make help          # lista de comandos
-make run           # ambos a la vez: :5080 + :5081
-make estadisticas  # solo invitado → http://localhost:5080
-make apuestas      # solo apuestas → http://localhost:5081
+make help          # lista de comandos + hosts actuales
+make run           # ambos: 172.28.114.135:5080 + 172.28.114.136:5081
+make estadisticas  # solo invitado
+make apuestas      # solo apuestas
 make stop          # mata lo que use 5080 y 5081
 make status        # ver si los puertos están ocupados
 make build         # compilar ambos
