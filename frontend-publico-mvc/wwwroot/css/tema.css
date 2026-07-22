@@ -209,6 +209,27 @@ body {
 .bandera {
     font-size: 2rem;
     line-height: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 2.25rem;
+}
+
+.bandera-img {
+    width: 48px;
+    height: 36px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 1px 4px color-mix(in srgb, #000 35%, transparent);
+}
+
+.bandera.fs-1 .bandera-img {
+    width: 72px;
+    height: 54px;
+}
+
+.bandera-emoji {
+    font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
 }
 
 .nombre-equipo {

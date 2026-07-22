@@ -41,7 +41,7 @@
                                 var fila = grupo.Posiciones[i];
                                 <tr>
                                     <td class="@(i < 2 ? "text-success fw-bold" : "")">@(i + 1)</td>
-                                    <td>@fila.Seleccion.Bandera @fila.Seleccion.Nombre</td>
+                                    <td><partial name="_Bandera" model="fila.Seleccion" /> @fila.Seleccion.Nombre</td>
                                     <td class="text-center">@fila.Jugados</td>
                                     <td class="text-center">@fila.Ganados</td>
                                     <td class="text-center">@fila.Empatados</td>

@@ -14,9 +14,9 @@
     @if (partido is not null)
     {
         <p class="text-center text-body-secondary mb-4">
-            @partido.SeleccionLocal.Bandera @partido.SeleccionLocal.Nombre
+            <span class="d-inline-flex align-items-center gap-1"><partial name="_Bandera" model="partido.SeleccionLocal" /> @partido.SeleccionLocal.Nombre</span>
             <strong class="mx-1">vs</strong>
-            @partido.SeleccionVisitante.Bandera @partido.SeleccionVisitante.Nombre
+            <span class="d-inline-flex align-items-center gap-1"><partial name="_Bandera" model="partido.SeleccionVisitante" /> @partido.SeleccionVisitante.Nombre</span>
             <br />
             <small><i class="bi bi-clock me-1"></i>Cierra el @partido.FechaHora.ToString("dd/MM/yyyy 'a las' HH:mm")</small>
         </p>
@@ -31,7 +31,7 @@
                     <div class="col-4 opcion-pronostico">
                         <input type="radio" asp-for="Pronostico" value="@Pronostico.Local" id="pronosticoLocal" />
                         <label for="pronosticoLocal">
-                            <div class="bandera">@partido.SeleccionLocal.Bandera</div>
+                            <div class="bandera"><partial name="_Bandera" model="partido.SeleccionLocal" /></div>
                             <div class="small">@partido.SeleccionLocal.Nombre</div>
                             <div class="cuota">@partido.Cuotas.Local.ToString("0.0#")</div>
                         </label>
@@ -47,7 +47,7 @@
                     <div class="col-4 opcion-pronostico">
                         <input type="radio" asp-for="Pronostico" value="@Pronostico.Visitante" id="pronosticoVisitante" />
                         <label for="pronosticoVisitante">
-                            <div class="bandera">@partido.SeleccionVisitante.Bandera</div>
+                            <div class="bandera"><partial name="_Bandera" model="partido.SeleccionVisitante" /></div>
                             <div class="small">@partido.SeleccionVisitante.Nombre</div>
                             <div class="cuota">@partido.Cuotas.Visitante.ToString("0.0#")</div>
                         </label>

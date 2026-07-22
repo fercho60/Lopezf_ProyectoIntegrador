@@ -1,0 +1,13 @@
+@model FrontendEstadisticas.Modelos.Seleccion
+@{
+    var url = Model?.UrlBandera ?? string.Empty;
+    var nombre = Model?.Nombre ?? "Selección";
+}
+@if (!string.IsNullOrWhiteSpace(url))
+{
+    <img class="bandera-img" src="@url" alt="Bandera de @nombre" width="48" height="36" loading="lazy" decoding="async" />
+}
+else if (!string.IsNullOrWhiteSpace(Model?.Bandera))
+{
+    <span class="bandera-emoji" aria-hidden="true">@Model.Bandera</span>
+}

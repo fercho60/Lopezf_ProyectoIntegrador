@@ -14,14 +14,14 @@
     </div>
     <div class="row align-items-center text-center mb-4">
         <div class="col-4">
-            <div class="bandera fs-1">@Model.SeleccionLocal.Bandera</div>
+            <div class="bandera fs-1"><partial name="_Bandera" model="Model.SeleccionLocal" /></div>
             <h2 class="titulo-pagina fs-3 mt-2">@Model.SeleccionLocal.Nombre</h2>
         </div>
         <div class="col-4">
             <div class="marcador display-4">@Model.Marcador</div>
         </div>
         <div class="col-4">
-            <div class="bandera fs-1">@Model.SeleccionVisitante.Bandera</div>
+            <div class="bandera fs-1"><partial name="_Bandera" model="Model.SeleccionVisitante" /></div>
             <h2 class="titulo-pagina fs-3 mt-2">@Model.SeleccionVisitante.Nombre</h2>
         </div>
     </div>

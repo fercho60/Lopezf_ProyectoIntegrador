@@ -51,7 +51,15 @@ public class AlmacenDatosSimulados
     {
         long id = 1;
         Seleccion Crear(string nombre, string codigo, string bandera, string grupo) =>
-            AgregarSeleccion(new Seleccion { Id = id++, Nombre = nombre, CodigoPais = codigo, Bandera = bandera, Grupo = grupo });
+            AgregarSeleccion(new Seleccion
+            {
+                Id = id++,
+                Nombre = nombre,
+                CodigoPais = codigo,
+                CodigoIso2 = codigo,
+                Bandera = bandera,
+                Grupo = grupo
+            });
 
         var mexico = Crear("México", "MX", "🇲🇽", "Grupo A");
         var ecuador = Crear("Ecuador", "EC", "🇪🇨", "Grupo A");

@@ -6,7 +6,7 @@ namespace FrontendPublico.Servicios.Http;
 
 /// <summary>
 /// Convierte respuestas JSON del Servicio de Estadísticas (Guacales, camelCase Jackson)
-/// en modelos del frontend público.
+/// en modelos del frontend de estadísticas.
 /// </summary>
 public static class MapeoEstadisticasJson
 {
@@ -100,6 +100,7 @@ public static class MapeoEstadisticasJson
         };
 
         var banderaApi = el.TryGetProperty("bandera", out var bandera) ? bandera.GetString() : null;
+        seleccion.CodigoIso2 = ResolverCodigoIso2(seleccion.CodigoPais);
         seleccion.Bandera = !string.IsNullOrWhiteSpace(banderaApi)
             ? banderaApi
             : BanderaDesdeCodigoPais(seleccion.CodigoPais);
@@ -108,6 +109,11 @@ public static class MapeoEstadisticasJson
         if (string.IsNullOrWhiteSpace(seleccion.Bandera) || seleccion.Bandera.Length < 2)
         {
             seleccion.Bandera = BanderaDesdeCodigoPais(seleccion.CodigoPais);
+        }
+
+        if (string.IsNullOrWhiteSpace(seleccion.CodigoIso2))
+        {
+            seleccion.CodigoIso2 = ResolverCodigoIso2(seleccion.CodigoPais);
         }
 
         return seleccion;
@@ -121,7 +127,8 @@ public static class MapeoEstadisticasJson
             ? "(vacío)"
             : string.Join(' ', bandera.EnumerateRunes().Select(r => $"U+{r.Value:X4}"));
 
-        return $"{seleccion.Nombre} codigo={seleccion.CodigoPais ?? "(null)"} " +
+        return $"{seleccion.Nombre} codigo={seleccion.CodigoPais ?? "(null)"} iso2={seleccion.CodigoIso2 ?? "(null)"} " +
+               $"url={(string.IsNullOrEmpty(seleccion.UrlBandera) ? "(vacío)" : seleccion.UrlBandera)} " +
                $"bandera='{bandera}' len={bandera.Length} cps=[{codepoints}]";
     }
 
@@ -259,6 +266,20 @@ public static class MapeoEstadisticasJson
 
     private static string BanderaDesdeCodigoPais(string codigoPais)
     {
+        var codigo = ResolverCodigoIso2(codigoPais);
+        if (codigo.Length != 2)
+        {
+            return string.Empty;
+        }
+
+        return string.Concat(
+            char.ConvertFromUtf32(0x1F1E6 + (codigo[0] - 'A')),
+            char.ConvertFromUtf32(0x1F1E6 + (codigo[1] - 'A')));
+    }
+
+    /// <summary>Normaliza FIFA-3 o ISO-2 a ISO 3166-1 alfa-2 en mayúsculas.</summary>
+    public static string ResolverCodigoIso2(string? codigoPais)
+    {
         if (string.IsNullOrWhiteSpace(codigoPais))
         {
             return string.Empty;
@@ -266,7 +287,6 @@ public static class MapeoEstadisticasJson
 
         var codigo = codigoPais.Trim().ToUpperInvariant();
 
-        // Guacales envía código FIFA (3 letras). Se mapea a ISO 3166-1 alfa-2 para el emoji.
         if (codigo.Length == 3 && CodigosFifaAIso.TryGetValue(codigo, out var iso))
         {
             codigo = iso;
@@ -279,9 +299,7 @@ public static class MapeoEstadisticasJson
             return string.Empty;
         }
 
-        return string.Concat(
-            char.ConvertFromUtf32(0x1F1E6 + (codigo[0] - 'A')),
-            char.ConvertFromUtf32(0x1F1E6 + (codigo[1] - 'A')));
+        return codigo;
     }
 
     private static readonly Dictionary<string, string> CodigosFifaAIso = new(StringComparer.OrdinalIgnoreCase)
