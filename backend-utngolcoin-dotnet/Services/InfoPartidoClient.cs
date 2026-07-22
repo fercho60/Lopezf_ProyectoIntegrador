@@ -7,8 +7,8 @@ namespace UTNGolCoinApi.Services;
 
 /// <summary>
 /// Información mínima de un partido consultada en Guacales.
-/// Se rellena a mano desde JsonDocument para tolerar selecciones anidadas
-/// (objeto) y cuotas planas o anidadas.
+/// Parseo manual (JsonDocument): Guacales manda seleccionLocal/Visitante como OBJETOS,
+/// fechaHora (no solo fechaHoraUtc) y cuotas anidadas.
 /// </summary>
 public class InfoPartidoDto
 {
@@ -20,6 +20,12 @@ public class InfoPartidoDto
     public decimal? CuotaEmpatePlana { get; set; }
     public decimal? CuotaVisitantePlana { get; set; }
     public CuotasAnidadasDto? Cuotas { get; set; }
+
+    /// <summary>Nombre de la selección local (extraído del objeto Guacales).</summary>
+    public string? SeleccionLocal { get; set; }
+
+    /// <summary>Nombre de la selección visitante (extraído del objeto Guacales).</summary>
+    public string? SeleccionVisitante { get; set; }
 
     public DateTime FechaHoraResuelta
     {
@@ -94,10 +100,6 @@ public class InfoPartidoClient : IInfoPartidoClient
         }
     }
 
-    /// <summary>
-    /// Solo lee id/estado/fechas/cuotas. Ignora seleccionLocal/seleccionVisitante
-    /// (objetos en Guacales) para no romper con DTOs que los tipaban como string.
-    /// </summary>
     internal static InfoPartidoDto? ParsearPartido(string json)
     {
         using var documento = JsonDocument.Parse(json);
@@ -114,7 +116,9 @@ public class InfoPartidoClient : IInfoPartidoClient
             FechaHoraTexto = LeerCadena(raiz, "fechaHora"),
             CuotaLocalPlana = LeerDecimalNullable(raiz, "cuotaLocal"),
             CuotaEmpatePlana = LeerDecimalNullable(raiz, "cuotaEmpate"),
-            CuotaVisitantePlana = LeerDecimalNullable(raiz, "cuotaVisitante")
+            CuotaVisitantePlana = LeerDecimalNullable(raiz, "cuotaVisitante"),
+            SeleccionLocal = LeerNombreSeleccion(raiz, "seleccionLocal"),
+            SeleccionVisitante = LeerNombreSeleccion(raiz, "seleccionVisitante")
         };
 
         if (raiz.TryGetProperty("fechaHoraUtc", out var fechaUtc) && fechaUtc.ValueKind == JsonValueKind.String
@@ -134,6 +138,31 @@ public class InfoPartidoClient : IInfoPartidoClient
         }
 
         return dto;
+    }
+
+    /// <summary>
+    /// Guacales manda objeto { id, nombre, codigoPais, ... }.
+    /// Versiones viejas podían mandar solo un string con el nombre.
+    /// </summary>
+    private static string? LeerNombreSeleccion(JsonElement raiz, string propiedad)
+    {
+        if (!raiz.TryGetProperty(propiedad, out var el))
+        {
+            return null;
+        }
+
+        if (el.ValueKind == JsonValueKind.String)
+        {
+            return el.GetString();
+        }
+
+        if (el.ValueKind == JsonValueKind.Object && el.TryGetProperty("nombre", out var nombre)
+            && nombre.ValueKind == JsonValueKind.String)
+        {
+            return nombre.GetString();
+        }
+
+        return null;
     }
 
     private static int LeerEntero(JsonElement el, string nombre) =>

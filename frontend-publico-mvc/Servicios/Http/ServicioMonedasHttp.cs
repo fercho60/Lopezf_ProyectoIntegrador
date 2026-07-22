@@ -127,6 +127,16 @@ public class ServicioMonedasHttp : IServicioMonedas
         using var respuesta = await _http.PostAsync($"predicciones/bono-diario/{usuarioId}", null);
         var contenido = await respuesta.Content.ReadAsStringAsync();
 
+        // 400 = no elegible (saldo != 0 o ya cobró hoy). No es caída del servicio.
+        if (respuesta.StatusCode == HttpStatusCode.BadRequest)
+        {
+            _bitacora.LogInformation(
+                "Bono diario no otorgado para usuario {UsuarioId}: {Contenido}",
+                usuarioId,
+                contenido);
+            return false;
+        }
+
         if (!respuesta.IsSuccessStatusCode)
         {
             _bitacora.LogError(
