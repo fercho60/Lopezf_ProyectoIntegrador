@@ -8,7 +8,7 @@ namespace UTNGolCoinApi.Services;
 /// <summary>
 /// Información mínima de un partido consultada en Guacales.
 /// Parseo manual (JsonDocument): Guacales manda seleccionLocal/Visitante como OBJETOS,
-/// fechaHora (no solo fechaHoraUtc) y cuotas anidadas.
+/// fechaHora (no solo fechaHoraUtc) y cuotas anidadas o planas.
 /// </summary>
 public class InfoPartidoDto
 {
@@ -21,10 +21,10 @@ public class InfoPartidoDto
     public decimal? CuotaVisitantePlana { get; set; }
     public CuotasAnidadasDto? Cuotas { get; set; }
 
-    /// <summary>Nombre de la selección local (extraído del objeto Guacales).</summary>
+    /// <summary>Nombre local (extraído de seleccionLocal.nombre o string legacy).</summary>
     public string? SeleccionLocal { get; set; }
 
-    /// <summary>Nombre de la selección visitante (extraído del objeto Guacales).</summary>
+    /// <summary>Nombre visitante (extraído de seleccionVisitante.nombre o string legacy).</summary>
     public string? SeleccionVisitante { get; set; }
 
     public DateTime FechaHoraResuelta
@@ -68,9 +68,9 @@ public interface IInfoPartidoClient
 public class InfoPartidoClient : IInfoPartidoClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<InfoPartidoClient>? _logger;
+    private readonly ILogger<InfoPartidoClient> _logger;
 
-    public InfoPartidoClient(HttpClient httpClient, ILogger<InfoPartidoClient>? logger = null)
+    public InfoPartidoClient(HttpClient httpClient, ILogger<InfoPartidoClient> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
@@ -78,25 +78,35 @@ public class InfoPartidoClient : IInfoPartidoClient
 
     public async Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId)
     {
+        HttpResponseMessage response;
         try
         {
-            var response = await _httpClient.GetAsync($"partidos/{partidoId}");
-            if (!response.IsSuccessStatusCode)
-            {
-                _logger?.LogWarning(
-                    "Guacales respondió {Status} al pedir partido {PartidoId}",
-                    (int)response.StatusCode,
-                    partidoId);
-                return null;
-            }
+            response = await _httpClient.GetAsync($"partidos/{partidoId}");
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            // No se pudo contactar a Guacales (IP/puerto, apagado, timeout).
+            throw new ServicioEstadisticasNoDisponibleException(ex);
+        }
 
-            var json = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogWarning(
+                "Guacales respondió {Status} al pedir partido {PartidoId}",
+                (int)response.StatusCode,
+                partidoId);
+            return null;
+        }
+
+        var json = await response.Content.ReadAsStringAsync();
+        try
+        {
             return ParsearPartido(json);
         }
         catch (Exception ex)
         {
-            _logger?.LogError(ex, "No se pudo consultar el partido {PartidoId} en Estadísticas", partidoId);
-            return null;
+            _logger.LogError(ex, "No se pudo parsear el partido {PartidoId} de Guacales", partidoId);
+            throw new ServicioEstadisticasNoDisponibleException(ex);
         }
     }
 
