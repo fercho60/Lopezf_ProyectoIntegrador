@@ -3,14 +3,24 @@
     ViewData["Titulo"] = "Inicio";
 }
 
-<section class="heroe mb-4">
-    <div class="row align-items-center">
+<section class="heroe heroe-vivo mb-5">
+    <div class="heroe-campo" aria-hidden="true"></div>
+    <div class="row align-items-center g-4 position-relative">
         <div class="col-lg-8">
-            <span class="insignia-estado en-juego mb-3"><span class="punto-vivo"></span>MUNDIAL 2026 · EE. UU. · MÉXICO · CANADÁ</span>
-            <h1 class="mt-3">Predice el Mundial<br /><span class="text-success">con UTNGolCoin</span></h1>
-            <p class="text-body-secondary fs-5 mb-4">
-                Estadísticas del torneo más predicciones 1X2. El registro es obligatorio para apostar.
-                Si solo quieres consultar el calendario, usa el portal de estadísticas como invitado.
+            <div class="d-flex align-items-center gap-3 mb-3 heroe-institucion">
+                <img src="~/img/utn-logo.png" asp-append-version="true" alt="Universidad Técnica del Norte" class="logo-utn logo-utn-heroe" width="72" height="72" />
+                <div>
+                    <p class="heroe-marca mb-0">Universidad Técnica del Norte</p>
+                    <span class="insignia-estado en-juego"><span class="punto-vivo"></span>MUNDIAL 2026 · PREDICCIONES CON UTNGOLCOIN</span>
+                </div>
+            </div>
+            <h1 class="mt-2 heroe-titulo">
+                <span class="d-block texto-marca heroe-brand">UTN GOL<span class="text-success">APUESTAS</span></span>
+                Predice el Mundial
+            </h1>
+            <p class="text-body-secondary fs-5 mb-4 heroe-lead">
+                Regístrate, recibe 10 UGC y juega predicciones 1X2.
+                Si solo quieres consultar el calendario, el portal de estadísticas te deja entrar como invitado.
             </p>
             @if (User.Identity?.IsAuthenticated != true)
             {
@@ -19,7 +29,7 @@
                         <i class="bi bi-person-plus me-1"></i>Regístrate y recibe 10 UGC
                     </a>
                     <a asp-controller="Calendario" asp-action="Indice" class="btn btn-lg btn-contorno-suave">
-                        Explorar como invitado
+                        Explorar partidos
                     </a>
                 </div>
             }
@@ -29,6 +39,13 @@
                     <i class="bi bi-lightning-charge me-1"></i>Mis predicciones
                 </a>
             }
+        </div>
+        <div class="col-lg-4 d-none d-lg-block">
+            <div class="heroe-panel text-center">
+                <img src="~/img/utn-logo.png" asp-append-version="true" alt="" class="logo-utn logo-utn-panel mb-3" width="120" height="120" />
+                <p class="texto-marca mb-1" style="font-size:1.1rem">UTNGolCoin</p>
+                <p class="small text-body-secondary mb-0">Moneda virtual académica · sin valor real</p>
+            </div>
         </div>
     </div>
 </section>
@@ -96,7 +113,10 @@ else
     </div>
     <div class="col-lg-6">
         <div class="tarjeta h-100">
-            <h2 class="titulo-pagina fs-4 mb-3">¿Cómo participar?</h2>
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <img src="~/img/utn-logo.png" asp-append-version="true" alt="" class="logo-utn" width="40" height="40" />
+                <h2 class="titulo-pagina fs-4 mb-0">¿Cómo participar?</h2>
+            </div>
             <ol class="mb-0 d-flex flex-column gap-2">
                 <li><strong>Regístrate</strong> y recibe 10 UTNGolCoin de bienvenida.</li>
                 <li>Elige un partido <strong>programado</strong> y crea tu predicción 1X2.</li>

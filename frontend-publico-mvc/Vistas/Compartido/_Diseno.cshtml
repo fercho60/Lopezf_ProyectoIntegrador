@@ -37,7 +37,7 @@
     <nav class="navbar navbar-expand-lg fixed-top barra-navegacion">
         <div class="container-xl">
             <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Inicio" asp-action="Indice">
-                <span class="logo-marca"><i class="bi bi-trophy-fill"></i></span>
+                <img src="~/img/utn-logo.png" asp-append-version="true" alt="UTN" class="logo-utn" width="36" height="36" />
                 <span class="texto-marca">UTN GOL<span class="text-success">APUESTAS</span></span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
@@ -94,8 +94,11 @@
     </main>
 
     <footer class="pie-pagina">
-        <div class="container-xl d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-            <span><i class="bi bi-trophy-fill text-success me-1"></i>Portal de apuestas — registro obligatorio para predecir</span>
+        <div class="container-xl d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <img src="~/img/utn-logo.png" asp-append-version="true" alt="Universidad Técnica del Norte" class="logo-utn logo-utn-pie" width="32" height="32" />
+                <span>Universidad Técnica del Norte · Portal de apuestas (registro para predecir)</span>
+            </div>
             <a class="small" href="@urlEstadisticas">Volver al portal de estadísticas (invitado)</a>
         </div>
     </footer>

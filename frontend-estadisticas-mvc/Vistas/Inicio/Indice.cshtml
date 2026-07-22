@@ -3,14 +3,24 @@
     ViewData["Titulo"] = "Inicio";
 }
 
-<section class="heroe mb-4">
-    <div class="row align-items-center">
+<section class="heroe heroe-vivo mb-5">
+    <div class="heroe-campo" aria-hidden="true"></div>
+    <div class="row align-items-center g-4 position-relative">
         <div class="col-lg-8">
-            <span class="insignia-estado en-juego mb-3"><span class="punto-vivo"></span>MUNDIAL 2026 · EE. UU. · MÉXICO · CANADÁ</span>
-            <h1 class="mt-3">Estadísticas del<br /><span class="text-success">Mundial 2026</span></h1>
-            <p class="text-body-secondary fs-5 mb-4">
-                Consulta calendario, posiciones y estadísticas como invitado.
-                Para predicciones con UTNGolCoin, entra al portal de apuestas (registro obligatorio).
+            <div class="d-flex align-items-center gap-3 mb-3 heroe-institucion">
+                <img src="~/img/utn-logo.png" asp-append-version="true" alt="Universidad Técnica del Norte" class="logo-utn logo-utn-heroe" width="72" height="72" />
+                <div>
+                    <p class="heroe-marca mb-0">Universidad Técnica del Norte</p>
+                    <span class="insignia-estado en-juego"><span class="punto-vivo"></span>MUNDIAL 2026 · EE. UU. · MÉXICO · CANADÁ</span>
+                </div>
+            </div>
+            <h1 class="mt-2 heroe-titulo">
+                <span class="d-block texto-marca heroe-brand">UTN GOL<span class="text-success">MUNDIAL</span></span>
+                Estadísticas del torneo
+            </h1>
+            <p class="text-body-secondary fs-5 mb-4 heroe-lead">
+                Entra como invitado: calendario, posiciones y números del Mundial.
+                Si quieres predecir con UTNGolCoin, el portal de apuestas te espera en una pestaña nueva.
             </p>
             <div class="d-flex gap-2 flex-wrap">
                 <a asp-controller="Calendario" asp-action="Indice" class="btn btn-lg btn-contorno-suave">
@@ -19,6 +29,13 @@
                 <a href="@Model.UrlApuestas" class="btn btn-success btn-lg fw-bold" target="_blank" rel="noopener noreferrer">
                     <i class="bi bi-lightning-charge me-1"></i>Ir a apuestas y registrarme
                 </a>
+            </div>
+        </div>
+        <div class="col-lg-4 d-none d-lg-block">
+            <div class="heroe-panel text-center">
+                <img src="~/img/utn-logo.png" asp-append-version="true" alt="" class="logo-utn logo-utn-panel mb-3" width="120" height="120" />
+                <p class="texto-marca mb-1" style="font-size:1.1rem">Proyecto Integrador</p>
+                <p class="small text-body-secondary mb-0">Facultad de Ingeniería en Ciencias Aplicadas</p>
             </div>
         </div>
     </div>
@@ -57,12 +74,17 @@ else
     </div>
 }
 
-<div class="tarjeta p-4">
-    <h2 class="titulo-pagina fs-4">¿Quieres apostar con UTNGolCoin?</h2>
-    <p class="text-body-secondary mb-3">
-        El portal de apuestas incluye estadísticas más predicciones 1X2. Debes registrarte para apostar.
-    </p>
-    <a href="@Model.UrlApuestas" class="btn btn-success fw-bold" target="_blank" rel="noopener noreferrer">
-        <i class="bi bi-box-arrow-up-right me-1"></i>Abrir portal de apuestas
-    </a>
+<div class="tarjeta p-4 tarjeta-cta-apuestas">
+    <div class="d-flex flex-column flex-md-row align-items-md-center gap-3">
+        <img src="~/img/utn-logo.png" asp-append-version="true" alt="" class="logo-utn" width="48" height="48" />
+        <div class="flex-grow-1">
+            <h2 class="titulo-pagina fs-4 mb-1">¿Quieres apostar con UTNGolCoin?</h2>
+            <p class="text-body-secondary mb-0">
+                Estadísticas más predicciones 1X2. El registro es obligatorio para apostar.
+            </p>
+        </div>
+        <a href="@Model.UrlApuestas" class="btn btn-success fw-bold" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-box-arrow-up-right me-1"></i>Abrir portal de apuestas
+        </a>
+    </div>
 </div>

@@ -51,6 +51,24 @@ body {
     justify-content: center;
 }
 
+.logo-utn {
+    display: block;
+    flex-shrink: 0;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+}
+
+.logo-utn-heroe {
+    animation: logo-entra 0.8s ease-out both;
+}
+
+.logo-utn-panel {
+    animation: logo-flota 4s ease-in-out infinite;
+}
+
+.logo-utn-pie {
+    opacity: 0.95;
+}
+
 .texto-marca {
     font-family: var(--fuente-titulos);
     font-weight: 800;
@@ -188,6 +206,65 @@ body {
     border: 1px solid var(--gol-borde);
     border-radius: 1.25rem;
     padding: 3rem 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.heroe-vivo {
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1.25rem, 4vw, 2.5rem);
+    animation: heroe-aparecer 0.7s ease-out both;
+}
+
+.heroe-campo {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(
+            90deg,
+            transparent 0,
+            transparent 46px,
+            color-mix(in srgb, var(--gol-verde) 8%, transparent) 46px,
+            color-mix(in srgb, var(--gol-verde) 8%, transparent) 48px
+        ),
+        radial-gradient(ellipse at 85% 20%, color-mix(in srgb, #c4a035 18%, transparent), transparent 45%);
+    pointer-events: none;
+    opacity: 0.55;
+}
+
+.heroe-institucion {
+    animation: heroe-aparecer 0.7s ease-out 0.1s both;
+}
+
+.heroe-marca {
+    font-family: var(--fuente-titulos);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+    color: color-mix(in srgb, var(--bs-body-color) 75%, transparent);
+}
+
+.heroe-brand {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    margin-bottom: 0.35rem;
+}
+
+.heroe-titulo {
+    animation: heroe-aparecer 0.75s ease-out 0.15s both;
+}
+
+.heroe-lead {
+    max-width: 38rem;
+    animation: heroe-aparecer 0.8s ease-out 0.22s both;
+}
+
+.heroe-panel {
+    background: color-mix(in srgb, var(--gol-fondo) 55%, transparent);
+    border: 1px solid var(--gol-borde);
+    border-radius: 1.25rem;
+    padding: 2rem 1.5rem;
+    backdrop-filter: blur(6px);
+    animation: heroe-aparecer 0.9s ease-out 0.2s both;
 }
 
 .heroe h1 {
@@ -196,6 +273,25 @@ body {
     font-size: clamp(2.2rem, 6vw, 3.8rem);
     letter-spacing: 0.06em;
     text-transform: uppercase;
+}
+
+.tarjeta-cta-apuestas {
+    border-color: color-mix(in srgb, var(--gol-verde) 35%, var(--gol-borde));
+}
+
+@keyframes heroe-aparecer {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes logo-entra {
+    from { opacity: 0; transform: scale(0.85) rotate(-6deg); }
+    to { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes logo-flota {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
 }
 
 /* ── Tablas ─────────────────────────────────────────────────── */

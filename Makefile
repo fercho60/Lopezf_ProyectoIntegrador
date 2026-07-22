@@ -1,50 +1,68 @@
 # UTN GolMundial 2026 — frontends públicos
 # Uso: make help | make run | make estadisticas | make apuestas | make stop
+#
+# Por defecto escucha en la IP de red local (accesible desde otras máquinas).
+# Para solo esta PC: make run BIND_EST=localhost BIND_APU=localhost
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ESTADISTICAS := $(ROOT)/frontend-estadisticas-mvc
 APUESTAS := $(ROOT)/frontend-publico-mvc
+
+# IPs/hosts al levantar (Fern / demo en red local)
+BIND_EST ?= 172.28.114.135
+BIND_APU ?= 172.28.114.136
+PORT_EST ?= 5080
+PORT_APU ?= 5081
+
+URL_EST := http://$(BIND_EST):$(PORT_EST)
+URL_APU := http://$(BIND_APU):$(PORT_APU)
 
 .PHONY: help run estadisticas apuestas stop build clean status
 
 help: ## Muestra los targets disponibles
 	@echo "Frontends UTN GolMundial 2026"
 	@echo ""
-	@echo "  make run            Levanta estadísticas (:5080) y apuestas (:5081) en paralelo"
-	@echo "  make estadisticas   Solo portal de estadísticas (invitado) → http://localhost:5080"
-	@echo "  make apuestas       Solo portal de apuestas → http://localhost:5081"
-	@echo "  make stop           Detiene lo que escuche en 5080 y 5081"
+	@echo "  make run            Levanta estadísticas + apuestas en paralelo"
+	@echo "  make estadisticas   Solo portal invitado → $(URL_EST)"
+	@echo "  make apuestas       Solo portal apuestas → $(URL_APU)"
+	@echo "  make stop           Detiene lo que escuche en $(PORT_EST) y $(PORT_APU)"
 	@echo "  make build          Compila ambos proyectos"
 	@echo "  make status         Muestra qué puertos están ocupados"
 	@echo "  make clean          Limpia bin/obj de ambos frontends"
-	@echo "  make help           Esta ayuda"
 	@echo ""
-	@echo "Nota: no uses 'cd A && dotnet run' seguido de 'cd B && ...' en la misma terminal:"
-	@echo "      el primero bloquea. Usa 'make run' o dos terminales / 'make -j2'."
+	@echo "Hosts actuales: BIND_EST=$(BIND_EST)  BIND_APU=$(BIND_APU)"
+	@echo "Localhost:      make run BIND_EST=localhost BIND_APU=localhost"
+	@echo ""
+	@echo "Nota: no uses 'cd A && dotnet run' dos veces en la misma terminal."
 
-run: ## Ambos frontends a la vez (Ctrl+C detiene los dos si Make los gestiona)
-	@echo "→ Estadísticas :5080  |  Apuestas :5081"
+run: ## Ambos frontends a la vez
+	@echo "→ Estadísticas $(URL_EST)"
+	@echo "→ Apuestas     $(URL_APU)"
 	@echo "  (Ctrl+C para detener ambos)"
 	@$(MAKE) -j2 estadisticas apuestas
 
 estadisticas: ## Portal invitado (solo consulta)
-	@echo "→ http://localhost:5080"
-	cd "$(ESTADISTICAS)" && dotnet run --urls http://localhost:5080
+	@echo "→ $(URL_EST)"
+	cd "$(ESTADISTICAS)" && \
+		Frontends__ApuestasUrl="$(URL_APU)" \
+		dotnet run --no-launch-profile --urls "$(URL_EST)"
 
 apuestas: ## Portal de apuestas (registro para predecir)
-	@echo "→ http://localhost:5081"
-	cd "$(APUESTAS)" && dotnet run --urls http://localhost:5081
+	@echo "→ $(URL_APU)"
+	cd "$(APUESTAS)" && \
+		Frontends__EstadisticasUrl="$(URL_EST)" \
+		dotnet run --no-launch-profile --urls "$(URL_APU)"
 
-stop: ## Libera los puertos 5080 y 5081
-	@-lsof -tiTCP:5080 -sTCP:LISTEN 2>/dev/null | xargs kill 2>/dev/null || true
-	@-lsof -tiTCP:5081 -sTCP:LISTEN 2>/dev/null | xargs kill 2>/dev/null || true
-	@echo "Puertos 5080 y 5081 liberados (si había procesos)."
+stop: ## Libera los puertos configurados
+	@-lsof -tiTCP:$(PORT_EST) -sTCP:LISTEN 2>/dev/null | xargs kill 2>/dev/null || true
+	@-lsof -tiTCP:$(PORT_APU) -sTCP:LISTEN 2>/dev/null | xargs kill 2>/dev/null || true
+	@echo "Puertos $(PORT_EST) y $(PORT_APU) liberados (si había procesos)."
 
-status: ## Quién escucha en 5080/5081
-	@echo "=== :5080 (estadísticas) ==="
-	@-lsof -nP -iTCP:5080 -sTCP:LISTEN 2>/dev/null || echo "(libre)"
-	@echo "=== :5081 (apuestas) ==="
-	@-lsof -nP -iTCP:5081 -sTCP:LISTEN 2>/dev/null || echo "(libre)"
+status: ## Quién escucha en los puertos
+	@echo "=== :$(PORT_EST) (estadísticas) ==="
+	@-lsof -nP -iTCP:$(PORT_EST) -sTCP:LISTEN 2>/dev/null || echo "(libre)"
+	@echo "=== :$(PORT_APU) (apuestas) ==="
+	@-lsof -nP -iTCP:$(PORT_APU) -sTCP:LISTEN 2>/dev/null || echo "(libre)"
 
 build: ## Compilar ambos
 	cd "$(ESTADISTICAS)" && dotnet build
