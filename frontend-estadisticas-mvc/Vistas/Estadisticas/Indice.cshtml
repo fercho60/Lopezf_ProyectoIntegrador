@@ -7,6 +7,13 @@
 <h1 class="titulo-pagina fs-2 mb-1">Estadísticas por <span class="acento">selección</span></h1>
 <p class="text-body-secondary mb-4">Partidos jugados, ganados, empatados y perdidos; goles a favor y en contra.</p>
 
+@if (ViewBag.EstadisticasNoDisponibles == true)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-plug me-2"></i>El servicio de estadísticas no está disponible en este momento.
+    </div>
+}
+
 <div class="row g-3">
     <div class="col-lg-7">
         <div class="tarjeta">

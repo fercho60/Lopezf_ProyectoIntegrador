@@ -6,6 +6,14 @@
 <h1 class="titulo-pagina fs-2 mb-1">Calendario de <span class="acento">partidos</span></h1>
 <p class="text-body-secondary mb-4">Los 104 partidos del torneo con fecha, hora, sede y estado.</p>
 
+@if (Model.EstadisticasNoDisponibles)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-plug me-2"></i>El servicio de estadísticas no está disponible en este momento.
+        Revisa que Guacales (o el túnel ngrok) esté activo y vuelve a cargar.
+    </div>
+}
+
 <form method="get" class="row g-2 mb-4">
     <div class="col-sm-4 col-lg-3">
         <select name="estado" class="form-select" aria-label="Filtrar por estado" onchange="this.form.submit()">

@@ -6,4 +6,5 @@ public class ModeloCalendario
     public string? FiltroEstado { get; set; }
     public string? FiltroGrupo { get; set; }
     public List<string> GruposDisponibles { get; set; } = new();
+    public bool EstadisticasNoDisponibles { get; set; }
 }

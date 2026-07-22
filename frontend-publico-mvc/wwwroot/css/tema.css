@@ -1,4 +1,4 @@
-/* Tema adaptativo UTN GolMundial 2026 — paleta basada en el prototipo de alta fidelidad */
+/* Tema adaptativo UTN GolMundial 2026 — paleta multicolor por modo */
 
 :root {
     --gol-verde: #22c55e;
@@ -6,37 +6,50 @@
     --gol-acento: #3b82f6;
     --gol-aviso: #f59e0b;
     --gol-oro: #c4a035;
+    --gol-cyan: #22d3ee;
     --fuente-titulos: "Barlow Condensed", sans-serif;
     --fuente-texto: "Inter", system-ui, sans-serif;
 }
 
+/* Oscuro: navy + teal + acentos (no todo negro plano) */
 [data-bs-theme="dark"] {
-    --gol-fondo: #060b18;
-    --gol-superficie: #0c1426;
-    --gol-superficie-2: #121c33;
-    --gol-borde: rgba(255, 255, 255, 0.08);
-    --gol-acento-suave: rgba(59, 130, 246, 0.18);
-    --gol-oro-suave: rgba(196, 160, 53, 0.16);
+    --gol-fondo: #07131f;
+    --gol-fondo-2: #0a1a2e;
+    --gol-superficie: #10243a;
+    --gol-superficie-2: #143049;
+    --gol-borde: rgba(94, 234, 212, 0.14);
+    --gol-acento-suave: rgba(56, 189, 248, 0.18);
+    --gol-oro-suave: rgba(250, 204, 21, 0.14);
+    --gol-verde-suave: rgba(34, 197, 94, 0.16);
+    --gol-texto-muted: #93a8bf;
     --bs-body-bg: var(--gol-fondo);
-    --bs-body-color: #e8ecf4;
+    --bs-body-color: #e8f1fa;
+    --bs-secondary-color: var(--gol-texto-muted);
 }
 
+/* Claro: menta + cielo + crema (no todo blanco/gris) */
 [data-bs-theme="light"] {
-    --gol-fondo: #f4f6fb;
+    --gol-fondo: #e8f4ef;
+    --gol-fondo-2: #e6eef8;
     --gol-superficie: #ffffff;
-    --gol-superficie-2: #eef6f1;
-    --gol-borde: rgba(10, 25, 47, 0.1);
-    --gol-acento-suave: rgba(59, 130, 246, 0.12);
-    --gol-oro-suave: rgba(196, 160, 53, 0.14);
+    --gol-superficie-2: #f3faf6;
+    --gol-borde: rgba(21, 128, 61, 0.16);
+    --gol-acento-suave: rgba(37, 99, 235, 0.12);
+    --gol-oro-suave: rgba(180, 130, 20, 0.14);
+    --gol-verde-suave: rgba(22, 163, 74, 0.12);
+    --gol-texto-muted: #4b6358;
     --bs-body-bg: var(--gol-fondo);
-    --bs-body-color: #101828;
+    --bs-body-color: #0f2a1c;
+    --bs-secondary-color: var(--gol-texto-muted);
 }
 
 body {
     font-family: var(--fuente-texto);
     background:
-        radial-gradient(ellipse at top, color-mix(in srgb, var(--gol-verde) 7%, transparent), transparent 60%),
-        var(--gol-fondo);
+        radial-gradient(ellipse 80% 50% at 10% -10%, color-mix(in srgb, var(--gol-verde) 22%, transparent), transparent 55%),
+        radial-gradient(ellipse 60% 45% at 95% 5%, color-mix(in srgb, var(--gol-acento) 18%, transparent), transparent 50%),
+        radial-gradient(ellipse 50% 40% at 70% 100%, color-mix(in srgb, var(--gol-oro) 12%, transparent), transparent 55%),
+        linear-gradient(180deg, var(--gol-fondo) 0%, var(--gol-fondo-2) 100%);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -44,16 +57,25 @@ body {
 
 /* ── Navegación ─────────────────────────────────────────────── */
 .barra-navegacion {
-    background: color-mix(in srgb, var(--gol-fondo) 92%, transparent);
-    backdrop-filter: blur(10px);
+    background:
+        linear-gradient(
+            90deg,
+            color-mix(in srgb, var(--gol-verde) 12%, var(--gol-fondo)) 0%,
+            color-mix(in srgb, var(--gol-acento) 10%, var(--gol-fondo)) 100%
+        );
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--gol-borde);
+}
+
+.navbar .nav-link.active {
+    color: var(--gol-verde) !important;
 }
 
 .logo-marca {
     width: 2rem;
     height: 2rem;
     border-radius: 0.5rem;
-    background: var(--gol-verde);
+    background: linear-gradient(135deg, var(--gol-verde), var(--gol-cyan));
     color: #04121f;
     display: inline-flex;
     align-items: center;
@@ -66,7 +88,6 @@ body {
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
 }
 
-/* El PNG de UTN es claro: en modo claro se oscurece para no desaparecer */
 [data-bs-theme="light"] .logo-utn {
     filter: brightness(0) saturate(100%);
 }
@@ -107,11 +128,22 @@ body {
 .btn-contorno-suave {
     border: 1px solid var(--gol-borde);
     color: var(--bs-body-color);
+    background: color-mix(in srgb, var(--gol-superficie) 70%, transparent);
 }
 
 .btn-contorno-suave:hover {
-    border-color: var(--gol-verde);
-    color: var(--gol-verde);
+    border-color: var(--gol-acento);
+    color: var(--gol-acento);
+    background: var(--gol-acento-suave);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--gol-verde), #0d9488) !important;
+    border-color: transparent !important;
+}
+
+.text-body-secondary {
+    color: var(--gol-texto-muted) !important;
 }
 
 /* ── Estructura ─────────────────────────────────────────────── */
@@ -125,6 +157,7 @@ body {
     border-top: 1px solid var(--gol-borde);
     padding: 1.25rem 0;
     font-size: 0.9rem;
+    background: color-mix(in srgb, var(--gol-verde) 6%, var(--gol-fondo));
 }
 
 .titulo-pagina {
@@ -140,24 +173,33 @@ body {
 
 /* ── Tarjetas ───────────────────────────────────────────────── */
 .tarjeta {
-    background: var(--gol-superficie);
+    background: linear-gradient(
+        160deg,
+        var(--gol-superficie) 0%,
+        color-mix(in srgb, var(--gol-verde) 8%, var(--gol-superficie)) 100%
+    );
     border: 1px solid var(--gol-borde);
     border-radius: 1rem;
     padding: 1.25rem;
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--gol-acento) 8%, transparent);
 }
 
 .tarjeta-partido {
     background: linear-gradient(
         165deg,
         var(--gol-superficie) 0%,
-        var(--gol-superficie-2) 100%
+        var(--gol-superficie-2) 55%,
+        color-mix(in srgb, var(--gol-acento) 10%, var(--gol-superficie-2)) 100%
     );
-    transition: transform 0.15s ease, border-color 0.15s ease;
+    border-left: 3px solid color-mix(in srgb, var(--gol-verde) 65%, transparent);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .tarjeta-partido:hover {
     transform: translateY(-3px);
     border-color: color-mix(in srgb, var(--gol-verde) 50%, transparent);
+    border-left-color: var(--gol-verde);
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--gol-verde) 18%, transparent);
 }
 
 .equipo {
@@ -180,6 +222,7 @@ body {
     font-weight: 800;
     font-size: 1.6rem;
     white-space: nowrap;
+    color: var(--gol-oro);
 }
 
 /* ── Insignias de estado ────────────────────────────────────── */
@@ -195,18 +238,21 @@ body {
 }
 
 .insignia-estado.en-juego {
-    background: rgba(34, 197, 94, 0.18);
+    background: var(--gol-verde-suave);
     color: var(--gol-verde);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--gol-verde) 35%, transparent);
 }
 
 .insignia-estado.programado {
     background: var(--gol-acento-suave);
     color: var(--gol-acento);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--gol-acento) 30%, transparent);
 }
 
 .insignia-estado.finalizado {
-    background: color-mix(in srgb, var(--bs-body-color) 12%, transparent);
-    color: color-mix(in srgb, var(--bs-body-color) 55%, transparent);
+    background: var(--gol-oro-suave);
+    color: var(--gol-oro);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--gol-oro) 28%, transparent);
 }
 
 .punto-vivo {
@@ -224,7 +270,8 @@ body {
 /* ── Héroe de la página de inicio ───────────────────────────── */
 .heroe {
     background:
-        linear-gradient(120deg, color-mix(in srgb, var(--gol-verde) 16%, transparent), transparent 65%),
+        linear-gradient(125deg, color-mix(in srgb, var(--gol-verde) 22%, transparent), transparent 55%),
+        linear-gradient(250deg, color-mix(in srgb, var(--gol-acento) 16%, transparent), transparent 50%),
         var(--gol-superficie);
     border: 1px solid var(--gol-borde);
     border-radius: 1.25rem;
@@ -246,12 +293,13 @@ body {
             90deg,
             transparent 0,
             transparent 46px,
-            color-mix(in srgb, var(--gol-verde) 8%, transparent) 46px,
-            color-mix(in srgb, var(--gol-verde) 8%, transparent) 48px
+            color-mix(in srgb, var(--gol-verde) 10%, transparent) 46px,
+            color-mix(in srgb, var(--gol-verde) 10%, transparent) 48px
         ),
-        radial-gradient(ellipse at 85% 20%, color-mix(in srgb, #c4a035 18%, transparent), transparent 45%);
+        radial-gradient(ellipse at 85% 20%, var(--gol-oro-suave), transparent 45%),
+        radial-gradient(ellipse at 15% 80%, var(--gol-acento-suave), transparent 40%);
     pointer-events: none;
-    opacity: 0.55;
+    opacity: 0.7;
 }
 
 .heroe-institucion {
@@ -264,7 +312,7 @@ body {
     letter-spacing: 0.08em;
     text-transform: uppercase;
     font-size: 0.95rem;
-    color: color-mix(in srgb, var(--bs-body-color) 75%, transparent);
+    color: var(--gol-texto-muted);
 }
 
 .heroe-brand {
@@ -282,7 +330,12 @@ body {
 }
 
 .heroe-panel {
-    background: color-mix(in srgb, var(--gol-fondo) 55%, transparent);
+    background:
+        linear-gradient(
+            160deg,
+            color-mix(in srgb, var(--gol-oro) 12%, var(--gol-superficie)) 0%,
+            color-mix(in srgb, var(--gol-acento) 10%, var(--gol-superficie)) 100%
+        );
     border: 1px solid var(--gol-borde);
     border-radius: 1.25rem;
     padding: 2rem 1.5rem;
@@ -299,7 +352,12 @@ body {
 }
 
 .tarjeta-cta-apuestas {
-    border-color: color-mix(in srgb, var(--gol-verde) 35%, var(--gol-borde));
+    border-color: color-mix(in srgb, var(--gol-verde) 40%, var(--gol-borde));
+    background: linear-gradient(
+        120deg,
+        color-mix(in srgb, var(--gol-verde) 12%, var(--gol-superficie)),
+        color-mix(in srgb, var(--gol-acento) 10%, var(--gol-superficie))
+    );
 }
 
 @keyframes heroe-aparecer {
@@ -327,8 +385,9 @@ body {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: color-mix(in srgb, var(--bs-body-color) 55%, transparent);
+    color: var(--gol-texto-muted);
     border-color: var(--gol-borde);
+    background: color-mix(in srgb, var(--gol-acento) 6%, transparent);
 }
 
 .tabla-gol td {
@@ -340,7 +399,7 @@ body {
     width: 2.2rem;
     height: 2.2rem;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--gol-verde), #0d9488);
+    background: linear-gradient(135deg, var(--gol-verde), var(--gol-cyan));
     color: #04121f;
     font-weight: 700;
     font-size: 0.8rem;
@@ -368,14 +427,26 @@ body {
     text-align: center;
     cursor: pointer;
     transition: border-color 0.15s ease, background 0.15s ease;
+    background: var(--gol-superficie-2);
 }
 
 .opcion-pronostico input[type="radio"]:checked + label {
     border-color: var(--gol-verde);
-    background: rgba(34, 197, 94, 0.12);
+    background: var(--gol-verde-suave);
 }
 
 .opcion-pronostico .cuota {
     color: var(--gol-verde);
     font-weight: 700;
+}
+
+form .form-select {
+    background-color: var(--gol-superficie);
+    border-color: var(--gol-borde);
+    color: var(--bs-body-color);
+}
+
+form .form-select:focus {
+    border-color: var(--gol-acento);
+    box-shadow: 0 0 0 0.2rem var(--gol-acento-suave);
 }

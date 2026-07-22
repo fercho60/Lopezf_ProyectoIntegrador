@@ -6,6 +6,13 @@
 <h1 class="titulo-pagina fs-2 mb-1">Tablas de <span class="acento">posiciones</span></h1>
 <p class="text-body-secondary mb-4">Se actualizan automáticamente al registrarse cada resultado oficial.</p>
 
+@if (ViewBag.EstadisticasNoDisponibles == true)
+{
+    <div class="alert alert-warning">
+        <i class="bi bi-plug me-2"></i>El servicio de estadísticas no está disponible en este momento.
+    </div>
+}
+
 <div class="row g-3">
     @foreach (var grupo in Model)
     {
