@@ -325,12 +325,23 @@ public class ServicioMonedasHttp : IServicioMonedas
             return DateTime.MinValue;
         }
 
-        if (DateTime.TryParse(valor, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal, out var fecha))
+        // Guacales a menudo envía "...Z", pero el equipo usa esa cifra como hora local (no UTC).
+        var limpio = valor.Trim();
+        if (limpio.EndsWith("Z", StringComparison.OrdinalIgnoreCase))
         {
-            return fecha;
+            limpio = limpio[..^1];
         }
 
-        return DateTime.TryParse(valor, out fecha) ? fecha : DateTime.MinValue;
+        if (DateTime.TryParse(
+                limpio,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeLocal | DateTimeStyles.AllowWhiteSpaces,
+                out var fecha))
+        {
+            return DateTime.SpecifyKind(fecha, DateTimeKind.Local);
+        }
+
+        return DateTime.TryParse(limpio, out fecha) ? fecha : DateTime.MinValue;
     }
 
     private static string PropiedadCadena(JsonElement el, string nombre) =>

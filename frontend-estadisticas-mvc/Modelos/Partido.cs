@@ -20,12 +20,11 @@ public class Partido
             : "vs";
 
     /// <summary>
-    /// Predicciones abiertas solo si sigue PROGRAMADO y el inicio (UTC) es futuro.
-    /// Comparar siempre en UTC: Guacales manda fechaHora con Z.
+    /// Predicciones abiertas si está PROGRAMADO y el inicio (hora local del equipo) es futuro.
+    /// Guacales manda a veces sufijo Z, pero el torneo se maneja en hora local.
     /// </summary>
     public bool AdmitePredicciones =>
-        Estado == EstadoPartido.Programado
-        && FechaHora.ToUniversalTime() > DateTime.UtcNow;
+        Estado == EstadoPartido.Programado && FechaHora > DateTime.Now;
 }
 
 public class CuotasPartido
