@@ -240,13 +240,22 @@ public static class MapeoEstadisticasJson
 
     private static string BanderaDesdeCodigoPais(string codigoPais)
     {
-        if (string.IsNullOrWhiteSpace(codigoPais) || codigoPais.Length != 2)
+        if (string.IsNullOrWhiteSpace(codigoPais))
         {
             return string.Empty;
         }
 
-        var codigo = codigoPais.ToUpperInvariant();
-        if (!char.IsAsciiLetterUpper(codigo[0]) || !char.IsAsciiLetterUpper(codigo[1]))
+        var codigo = codigoPais.Trim().ToUpperInvariant();
+
+        // Guacales envía código FIFA (3 letras). Se mapea a ISO 3166-1 alfa-2 para el emoji.
+        if (codigo.Length == 3 && CodigosFifaAIso.TryGetValue(codigo, out var iso))
+        {
+            codigo = iso;
+        }
+
+        if (codigo.Length != 2
+            || !char.IsAsciiLetterUpper(codigo[0])
+            || !char.IsAsciiLetterUpper(codigo[1]))
         {
             return string.Empty;
         }
@@ -255,6 +264,26 @@ public static class MapeoEstadisticasJson
             char.ConvertFromUtf32(0x1F1E6 + (codigo[0] - 'A')),
             char.ConvertFromUtf32(0x1F1E6 + (codigo[1] - 'A')));
     }
+
+    private static readonly Dictionary<string, string> CodigosFifaAIso = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["MEX"] = "MX", ["USA"] = "US", ["CAN"] = "CA", ["BRA"] = "BR", ["ARG"] = "AR",
+        ["URU"] = "UY", ["CHI"] = "CL", ["COL"] = "CO", ["PER"] = "PE", ["ECU"] = "EC",
+        ["PAR"] = "PY", ["BOL"] = "BO", ["VEN"] = "VE", ["CRC"] = "CR", ["PAN"] = "PA",
+        ["HON"] = "HN", ["SLV"] = "SV", ["GUA"] = "GT", ["JAM"] = "JM", ["HAI"] = "HT",
+        ["TRI"] = "TT", ["CUB"] = "CU", ["CUW"] = "CW", ["ESP"] = "ES", ["POR"] = "PT",
+        ["FRA"] = "FR", ["GER"] = "DE", ["ITA"] = "IT", ["ENG"] = "GB", ["SCO"] = "GB",
+        ["WAL"] = "GB", ["NED"] = "NL", ["BEL"] = "BE", ["SUI"] = "CH", ["AUT"] = "AT",
+        ["CRO"] = "HR", ["SRB"] = "RS", ["POL"] = "PL", ["CZE"] = "CZ", ["SVK"] = "SK",
+        ["HUN"] = "HU", ["ROU"] = "RO", ["UKR"] = "UA", ["DEN"] = "DK", ["SWE"] = "SE",
+        ["NOR"] = "NO", ["FIN"] = "FI", ["IRL"] = "IE", ["NIR"] = "GB", ["GRE"] = "GR",
+        ["TUR"] = "TR", ["RUS"] = "RU", ["JPN"] = "JP", ["KOR"] = "KR", ["CHN"] = "CN",
+        ["AUS"] = "AU", ["NZL"] = "NZ", ["IRN"] = "IR", ["IRQ"] = "IQ", ["KSA"] = "SA",
+        ["QAT"] = "QA", ["UAE"] = "AE", ["JOR"] = "JO", ["UZB"] = "UZ", ["MAR"] = "MA",
+        ["TUN"] = "TN", ["ALG"] = "DZ", ["EGY"] = "EG", ["SEN"] = "SN", ["GHA"] = "GH",
+        ["NGA"] = "NG", ["CMR"] = "CM", ["CIV"] = "CI", ["RSA"] = "ZA", ["COD"] = "CD",
+        ["CPV"] = "CV", ["BIH"] = "BA"
+    };
 
     private static string PropiedadCadena(JsonElement el, string nombre) =>
         el.TryGetProperty(nombre, out var propiedad) && propiedad.ValueKind == JsonValueKind.String

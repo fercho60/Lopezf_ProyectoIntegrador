@@ -115,3 +115,6 @@ Detalle del diseño: [`docs/plan/PLAN.md`](docs/plan/PLAN.md) y el plan de integ
 ## Planificación
 
 [`docs/plan/PLAN.md`](docs/plan/PLAN.md) y [`docs/plan/STATUS.md`](docs/plan/STATUS.md).
+
+Documento para la presentación final (frontends, tecnologías, BD, modo claro/oscuro):
+[`docs/PRESENTACION-FINAL-FRONTENDS.md`](docs/PRESENTACION-FINAL-FRONTENDS.md).

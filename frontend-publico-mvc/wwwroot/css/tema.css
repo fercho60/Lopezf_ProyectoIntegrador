@@ -3,6 +3,9 @@
 :root {
     --gol-verde: #22c55e;
     --gol-verde-oscuro: #15803d;
+    --gol-acento: #3b82f6;
+    --gol-aviso: #f59e0b;
+    --gol-oro: #c4a035;
     --fuente-titulos: "Barlow Condensed", sans-serif;
     --fuente-texto: "Inter", system-ui, sans-serif;
 }
@@ -10,7 +13,10 @@
 [data-bs-theme="dark"] {
     --gol-fondo: #060b18;
     --gol-superficie: #0c1426;
+    --gol-superficie-2: #121c33;
     --gol-borde: rgba(255, 255, 255, 0.08);
+    --gol-acento-suave: rgba(59, 130, 246, 0.18);
+    --gol-oro-suave: rgba(196, 160, 53, 0.16);
     --bs-body-bg: var(--gol-fondo);
     --bs-body-color: #e8ecf4;
 }
@@ -18,7 +24,10 @@
 [data-bs-theme="light"] {
     --gol-fondo: #f4f6fb;
     --gol-superficie: #ffffff;
+    --gol-superficie-2: #eef6f1;
     --gol-borde: rgba(10, 25, 47, 0.1);
+    --gol-acento-suave: rgba(59, 130, 246, 0.12);
+    --gol-oro-suave: rgba(196, 160, 53, 0.14);
     --bs-body-bg: var(--gol-fondo);
     --bs-body-color: #101828;
 }
@@ -55,6 +64,15 @@ body {
     display: block;
     flex-shrink: 0;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.35));
+}
+
+/* El PNG de UTN es claro: en modo claro se oscurece para no desaparecer */
+[data-bs-theme="light"] .logo-utn {
+    filter: brightness(0) saturate(100%);
+}
+
+[data-bs-theme="dark"] .logo-utn {
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
 }
 
 .logo-utn-heroe {
@@ -129,6 +147,11 @@ body {
 }
 
 .tarjeta-partido {
+    background: linear-gradient(
+        165deg,
+        var(--gol-superficie) 0%,
+        var(--gol-superficie-2) 100%
+    );
     transition: transform 0.15s ease, border-color 0.15s ease;
 }
 
@@ -177,8 +200,8 @@ body {
 }
 
 .insignia-estado.programado {
-    background: rgba(59, 130, 246, 0.18);
-    color: #60a5fa;
+    background: var(--gol-acento-suave);
+    color: var(--gol-acento);
 }
 
 .insignia-estado.finalizado {
