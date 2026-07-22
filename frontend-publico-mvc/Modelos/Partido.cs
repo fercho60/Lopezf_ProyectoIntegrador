@@ -19,7 +19,13 @@ public class Partido
             ? $"{GolesLocal} - {GolesVisitante}"
             : "vs";
 
-    public bool AdmitePredicciones => Estado == EstadoPartido.Programado && FechaHora > DateTime.Now;
+    /// <summary>
+    /// Predicciones abiertas solo si sigue PROGRAMADO y el inicio (UTC) es futuro.
+    /// Comparar siempre en UTC: Guacales manda fechaHora con Z.
+    /// </summary>
+    public bool AdmitePredicciones =>
+        Estado == EstadoPartido.Programado
+        && FechaHora.ToUniversalTime() > DateTime.UtcNow;
 }
 
 public class CuotasPartido
