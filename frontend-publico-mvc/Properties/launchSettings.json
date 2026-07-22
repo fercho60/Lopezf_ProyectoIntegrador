@@ -5,16 +5,6 @@
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "http://172.28.114.136:5081",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "Frontends__EstadisticasUrl": "http://172.28.114.135:5080"
-      }
-    },
-    "localhost": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": true,
       "applicationUrl": "http://localhost:5081",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",

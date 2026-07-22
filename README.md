@@ -28,23 +28,24 @@ Invitado (:5080) ──consulta──► Guacales :8080/demo/api/v1
 > Guía completa paso a paso para todo el equipo (incluye pruebas entre máquinas):
 > [`docs/GUIA-EJECUCION.md`](docs/GUIA-EJECUCION.md)
 
-Por defecto el `Makefile` levanta en la red local:
+Por defecto el `Makefile` levanta en **localhost** (una sola PC):
 
 | Portal | URL |
 |---|---|
-| Estadísticas | `http://172.28.114.135:5080` |
-| Apuestas | `http://172.28.114.136:5081` |
+| Estadísticas | `http://localhost:5080` |
+| Apuestas | `http://localhost:5081` |
 
 ```bash
-make run                                              # IPs de red (arriba)
-make run BIND_EST=localhost BIND_APU=localhost        # solo esta máquina
+make run
+# En red local (misma máquina): usa TU IP en ambos
+make run BIND_EST=172.28.114.135 BIND_APU=172.28.114.135
 ```
 
 Equivalente manual:
 
 ```bash
-dotnet run --project frontend-estadisticas-mvc --urls "http://172.28.114.135:5080"
-dotnet run --project frontend-publico-mvc --urls "http://172.28.114.136:5081"
+dotnet run --project frontend-estadisticas-mvc --urls "http://localhost:5080"
+dotnet run --project frontend-publico-mvc --urls "http://localhost:5081"
 ```
 
 Desde la **raíz del repositorio** (donde está el `Makefile`):

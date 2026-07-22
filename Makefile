@@ -1,16 +1,19 @@
 # UTN GolMundial 2026 — frontends públicos
 # Uso: make help | make run | make estadisticas | make apuestas | make stop
 #
-# Por defecto escucha en la IP de red local (accesible desde otras máquinas).
-# Para solo esta PC: make run BIND_EST=localhost BIND_APU=localhost
+# Por defecto: localhost (siempre funciona en una sola PC).
+# En red local (misma máquina, accesible por LAN):
+#   make run BIND_EST=TU_IP BIND_APU=TU_IP
+# Dos PCs distintas:
+#   make run BIND_EST=IP_ESTADISTICAS BIND_APU=IP_APUESTAS
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ESTADISTICAS := $(ROOT)/frontend-estadisticas-mvc
 APUESTAS := $(ROOT)/frontend-publico-mvc
 
-# IPs/hosts al levantar (Fern / demo en red local)
-BIND_EST ?= 172.28.114.135
-BIND_APU ?= 172.28.114.136
+# Hosts al levantar — deben ser IPs/interfaces de ESTA máquina.
+BIND_EST ?= localhost
+BIND_APU ?= localhost
 PORT_EST ?= 5080
 PORT_APU ?= 5081
 
