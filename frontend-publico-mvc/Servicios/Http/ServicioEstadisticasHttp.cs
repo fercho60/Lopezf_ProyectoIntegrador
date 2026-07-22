@@ -37,6 +37,7 @@ public class ServicioEstadisticasHttp : IServicioEstadisticas
         // (bug Hibernate lazy de Grupo). Pedimos todo y filtramos aquí.
         var json = await ObtenerJsonExitoAsync("partidos", "listar partidos");
         var partidos = MapearLista(json, MapeoEstadisticasJson.APartido);
+        RegistrarMuestraBanderas(partidos);
 
         if (estado.HasValue)
         {
@@ -81,6 +82,35 @@ public class ServicioEstadisticasHttp : IServicioEstadisticas
     {
         var json = await ObtenerJsonExitoAsync("estadisticas/selecciones", "listar estadísticas por selección");
         return MapearLista(json, MapeoEstadisticasJson.AEstadistica);
+    }
+
+    private void RegistrarMuestraBanderas(List<Partido> partidos)
+    {
+        var muestra = partidos
+            .SelectMany(p => new[] { p.SeleccionLocal, p.SeleccionVisitante })
+            .Where(s => s is not null && !string.IsNullOrWhiteSpace(s.Nombre))
+            .GroupBy(s => s.CodigoPais ?? s.Nombre)
+            .Select(g => g.First())
+            .Take(8)
+            .ToList();
+
+        if (muestra.Count == 0)
+        {
+            _bitacora.LogWarning("Banderas: no hay selecciones en los partidos mapeados.");
+            return;
+        }
+
+        var vacias = muestra.Count(s => string.IsNullOrWhiteSpace(s.Bandera));
+        _bitacora.LogInformation(
+            "Banderas: {TotalPartidos} partidos, muestra {Muestra} selecciones ({Vacias} sin bandera)",
+            partidos.Count,
+            muestra.Count,
+            vacias);
+
+        foreach (var seleccion in muestra)
+        {
+            _bitacora.LogInformation("Bandera → {Detalle}", MapeoEstadisticasJson.DescribirBandera(seleccion));
+        }
     }
 
     private async Task<JsonElement> ObtenerJsonExitoAsync(string ruta, string operacion)

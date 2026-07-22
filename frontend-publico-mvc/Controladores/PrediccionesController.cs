@@ -79,5 +79,12 @@ public class PrediccionesController : Controller
             ModelState.AddModelError(string.Empty, excepcion.Message);
             return await ReintentarAsync();
         }
+        catch (HttpRequestException)
+        {
+            ModelState.AddModelError(
+                string.Empty,
+                "No se pudo registrar la predicción: el servicio de monedas falló. Intenta de nuevo.");
+            return await ReintentarAsync();
+        }
     }
 }

@@ -74,7 +74,7 @@ public class ServicioMonedasHttp : IServicioMonedas
                 "Error HTTP {Estado} al crear predicción: {Contenido}",
                 (int)respuesta.StatusCode,
                 contenido);
-            throw new HttpRequestException($"No se pudo crear la predicción: {(int)respuesta.StatusCode}");
+            throw LeerExcepcionReglaNegocio(contenido);
         }
 
         using var documento = JsonDocument.Parse(contenido);

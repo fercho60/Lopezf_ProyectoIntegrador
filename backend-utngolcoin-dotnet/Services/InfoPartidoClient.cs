@@ -1,36 +1,24 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace UTNGolCoinApi.Services;
 
 /// <summary>
-/// Información mínima de un partido consultada en el Servicio de Estadísticas (Guacales).
-/// Acepta el shape plano (cuotaLocal) y el anidado de Guacales (cuotas.local + fechaHora).
+/// Información mínima de un partido consultada en Guacales.
+/// Se rellena a mano desde JsonDocument para tolerar selecciones anidadas
+/// (objeto) y cuotas planas o anidadas.
 /// </summary>
 public class InfoPartidoDto
 {
-    [JsonPropertyName("id")]
     public int Id { get; set; }
-
-    [JsonPropertyName("fechaHoraUtc")]
     public DateTime? FechaHoraUtc { get; set; }
-
-    [JsonPropertyName("fechaHora")]
     public string? FechaHoraTexto { get; set; }
-
-    [JsonPropertyName("estado")]
     public string Estado { get; set; } = "PROGRAMADO";
-
-    [JsonPropertyName("cuotaLocal")]
     public decimal? CuotaLocalPlana { get; set; }
-
-    [JsonPropertyName("cuotaEmpate")]
     public decimal? CuotaEmpatePlana { get; set; }
-
-    [JsonPropertyName("cuotaVisitante")]
     public decimal? CuotaVisitantePlana { get; set; }
-
-    [JsonPropertyName("cuotas")]
     public CuotasAnidadasDto? Cuotas { get; set; }
 
     public DateTime FechaHoraResuelta
@@ -39,7 +27,7 @@ public class InfoPartidoDto
         {
             if (FechaHoraUtc.HasValue) return FechaHoraUtc.Value;
             if (!string.IsNullOrWhiteSpace(FechaHoraTexto) &&
-                DateTime.TryParse(FechaHoraTexto, null, System.Globalization.DateTimeStyles.RoundtripKind, out var parsed))
+                DateTime.TryParse(FechaHoraTexto, null, DateTimeStyles.RoundtripKind, out var parsed))
             {
                 return parsed.Kind == DateTimeKind.Unspecified
                     ? DateTime.SpecifyKind(parsed, DateTimeKind.Utc)
@@ -74,21 +62,93 @@ public interface IInfoPartidoClient
 public class InfoPartidoClient : IInfoPartidoClient
 {
     private readonly HttpClient _httpClient;
+    private readonly ILogger<InfoPartidoClient>? _logger;
 
-    public InfoPartidoClient(HttpClient httpClient)
+    public InfoPartidoClient(HttpClient httpClient, ILogger<InfoPartidoClient>? logger = null)
     {
         _httpClient = httpClient;
+        _logger = logger;
     }
 
     public async Task<InfoPartidoDto?> ObtenerPartidoAsync(int partidoId)
     {
-        var response = await _httpClient.GetAsync($"partidos/{partidoId}");
-        if (!response.IsSuccessStatusCode) return null;
-
-        var json = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<InfoPartidoDto>(json, new JsonSerializerOptions
+        try
         {
-            PropertyNameCaseInsensitive = true
-        });
+            var response = await _httpClient.GetAsync($"partidos/{partidoId}");
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger?.LogWarning(
+                    "Guacales respondió {Status} al pedir partido {PartidoId}",
+                    (int)response.StatusCode,
+                    partidoId);
+                return null;
+            }
+
+            var json = await response.Content.ReadAsStringAsync();
+            return ParsearPartido(json);
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "No se pudo consultar el partido {PartidoId} en Estadísticas", partidoId);
+            return null;
+        }
     }
+
+    /// <summary>
+    /// Solo lee id/estado/fechas/cuotas. Ignora seleccionLocal/seleccionVisitante
+    /// (objetos en Guacales) para no romper con DTOs que los tipaban como string.
+    /// </summary>
+    internal static InfoPartidoDto? ParsearPartido(string json)
+    {
+        using var documento = JsonDocument.Parse(json);
+        var raiz = documento.RootElement;
+        if (raiz.ValueKind != JsonValueKind.Object)
+        {
+            return null;
+        }
+
+        var dto = new InfoPartidoDto
+        {
+            Id = LeerEntero(raiz, "id"),
+            Estado = LeerCadena(raiz, "estado") ?? "PROGRAMADO",
+            FechaHoraTexto = LeerCadena(raiz, "fechaHora"),
+            CuotaLocalPlana = LeerDecimalNullable(raiz, "cuotaLocal"),
+            CuotaEmpatePlana = LeerDecimalNullable(raiz, "cuotaEmpate"),
+            CuotaVisitantePlana = LeerDecimalNullable(raiz, "cuotaVisitante")
+        };
+
+        if (raiz.TryGetProperty("fechaHoraUtc", out var fechaUtc) && fechaUtc.ValueKind == JsonValueKind.String
+            && DateTime.TryParse(fechaUtc.GetString(), null, DateTimeStyles.RoundtripKind, out var utc))
+        {
+            dto.FechaHoraUtc = utc;
+        }
+
+        if (raiz.TryGetProperty("cuotas", out var cuotas) && cuotas.ValueKind == JsonValueKind.Object)
+        {
+            dto.Cuotas = new CuotasAnidadasDto
+            {
+                Local = LeerDecimal(cuotas, "local"),
+                Empate = LeerDecimal(cuotas, "empate"),
+                Visitante = LeerDecimal(cuotas, "visitante")
+            };
+        }
+
+        return dto;
+    }
+
+    private static int LeerEntero(JsonElement el, string nombre) =>
+        el.TryGetProperty(nombre, out var p) && p.TryGetInt32(out var v) ? v : 0;
+
+    private static string? LeerCadena(JsonElement el, string nombre) =>
+        el.TryGetProperty(nombre, out var p) && p.ValueKind == JsonValueKind.String ? p.GetString() : null;
+
+    private static decimal? LeerDecimalNullable(JsonElement el, string nombre) =>
+        el.TryGetProperty(nombre, out var p) && p.ValueKind == JsonValueKind.Number && p.TryGetDecimal(out var v)
+            ? v
+            : null;
+
+    private static decimal LeerDecimal(JsonElement el, string nombre) =>
+        el.TryGetProperty(nombre, out var p) && p.ValueKind == JsonValueKind.Number && p.TryGetDecimal(out var v)
+            ? v
+            : 0m;
 }

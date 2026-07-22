@@ -99,11 +99,30 @@ public static class MapeoEstadisticasJson
             Grupo = PropiedadCadena(el, "grupo")
         };
 
-        seleccion.Bandera = el.TryGetProperty("bandera", out var bandera)
-            ? bandera.GetString() ?? string.Empty
+        var banderaApi = el.TryGetProperty("bandera", out var bandera) ? bandera.GetString() : null;
+        seleccion.Bandera = !string.IsNullOrWhiteSpace(banderaApi)
+            ? banderaApi
             : BanderaDesdeCodigoPais(seleccion.CodigoPais);
 
+        // Si la API mandó texto vacío o basura, forzar emoji desde código FIFA/ISO.
+        if (string.IsNullOrWhiteSpace(seleccion.Bandera) || seleccion.Bandera.Length < 2)
+        {
+            seleccion.Bandera = BanderaDesdeCodigoPais(seleccion.CodigoPais);
+        }
+
         return seleccion;
+    }
+
+    /// <summary>Resumen para logs: código, bandera visible y codepoints Unicode.</summary>
+    public static string DescribirBandera(Seleccion seleccion)
+    {
+        var bandera = seleccion.Bandera ?? string.Empty;
+        var codepoints = string.IsNullOrEmpty(bandera)
+            ? "(vacío)"
+            : string.Join(' ', bandera.EnumerateRunes().Select(r => $"U+{r.Value:X4}"));
+
+        return $"{seleccion.Nombre} codigo={seleccion.CodigoPais ?? "(null)"} " +
+               $"bandera='{bandera}' len={bandera.Length} cps=[{codepoints}]";
     }
 
     public static Partido? APartido(JsonElement el)
