@@ -30,18 +30,25 @@ if (usarSimulado)
 }
 else
 {
+    constructor.Services.AddTransient<ManejadorHttpLog>();
     constructor.Services.AddHttpClient<IServicioEstadisticas, ServicioEstadisticasHttp>(cliente =>
     {
         cliente.BaseAddress = new Uri(direccionEstadisticas.EndsWith('/') ? direccionEstadisticas : direccionEstadisticas + "/");
         cliente.Timeout = TimeSpan.FromSeconds(30);
         // ngrok free exige este header; sin él a veces responde ERR_NGROK_6024
         cliente.DefaultRequestHeaders.TryAddWithoutValidation("ngrok-skip-browser-warning", "true");
-    });
+    }).AddHttpMessageHandler<ManejadorHttpLog>();
     // Respaldo simulado si se necesita inyectar Almacen en otros sitios
     constructor.Services.AddSingleton<AlmacenDatosSimulados>();
 }
 
 var aplicacion = constructor.Build();
+
+var bitacoraArranque = aplicacion.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Arranque");
+bitacoraArranque.LogInformation(
+    "Config backends → Estadisticas={Estadisticas} (simulado={Simulado})",
+    direccionEstadisticas,
+    usarSimulado);
 
 aplicacion.UseExceptionHandler("/Errores/Error");
 aplicacion.UseStatusCodePagesWithReExecute("/Errores/Codigo/{0}");

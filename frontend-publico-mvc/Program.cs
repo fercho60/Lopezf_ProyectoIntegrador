@@ -38,6 +38,7 @@ var direccionMonedas = constructor.Configuration["Servicios:UTNGolCoin:Direccion
     ?? "http://localhost:5000/api/";
 
 constructor.Services.AddSingleton<AlmacenDatosSimulados>();
+constructor.Services.AddTransient<ManejadorHttpLog>();
 
 if (usarEstadisticasSimulado)
 {
@@ -51,13 +52,13 @@ else
         cliente.BaseAddress = new Uri(direccionEstadisticas.EndsWith('/') ? direccionEstadisticas : direccionEstadisticas + "/");
         cliente.Timeout = TimeSpan.FromSeconds(30);
         cliente.DefaultRequestHeaders.TryAddWithoutValidation("ngrok-skip-browser-warning", "true");
-    });
+    }).AddHttpMessageHandler<ManejadorHttpLog>();
     constructor.Services.AddHttpClient<IServicioAutenticacion, ServicioAutenticacionHttp>(cliente =>
     {
         cliente.BaseAddress = new Uri(direccionEstadisticas.EndsWith('/') ? direccionEstadisticas : direccionEstadisticas + "/");
         cliente.Timeout = TimeSpan.FromSeconds(30);
         cliente.DefaultRequestHeaders.TryAddWithoutValidation("ngrok-skip-browser-warning", "true");
-    });
+    }).AddHttpMessageHandler<ManejadorHttpLog>();
 }
 
 if (usarMonedasSimulado)
@@ -70,10 +71,18 @@ else
     {
         cliente.BaseAddress = new Uri(direccionMonedas.EndsWith('/') ? direccionMonedas : direccionMonedas + "/");
         cliente.Timeout = TimeSpan.FromSeconds(15);
-    });
+    }).AddHttpMessageHandler<ManejadorHttpLog>();
 }
 
 var aplicacion = constructor.Build();
+
+var bitacoraArranque = aplicacion.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Arranque");
+bitacoraArranque.LogInformation(
+    "Config backends → Estadisticas={Estadisticas} (simulado={SimEst}) | UTNGolCoin={Monedas} (simulado={SimMon})",
+    direccionEstadisticas,
+    usarEstadisticasSimulado,
+    direccionMonedas,
+    usarMonedasSimulado);
 
 aplicacion.UseExceptionHandler("/Errores/Error");
 aplicacion.UseStatusCodePagesWithReExecute("/Errores/Codigo/{0}");
