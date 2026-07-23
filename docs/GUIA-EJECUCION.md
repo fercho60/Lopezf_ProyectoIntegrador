@@ -70,7 +70,7 @@ máquina de Fernando copia `equipo.env.example` a `equipo.env` y cambia únicame
 las URLs:
 
 ```dotenv
-URL_GUACALES=http://IP_DE_ANDREA:18080/demo/api/v1/
+URL_GUACALES=http://IP_DE_ANDREA:8080/demo/api/v1/
 URL_UTNGOLCOIN=http://IP_DE_MAYRA:5001/api/
 URL_ADMIN=http://IP_DE_JOEL:5203
 USAR_SIMULADO=false
@@ -79,7 +79,7 @@ USAR_SIMULADO=false
 En Joel se configuran las mismas IP mediante variables estándar:
 
 ```bash
-ApiEstadisticas__BaseUrl=http://IP_DE_ANDREA:18080/demo/api/v1/
+ApiEstadisticas__BaseUrl=http://IP_DE_ANDREA:8080/demo/api/v1/
 ApiUTNGolCoin__BaseUrl=http://IP_DE_MAYRA:5001/api/
 ```
 

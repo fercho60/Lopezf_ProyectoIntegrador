@@ -69,12 +69,12 @@ En los perfiles HTTP configura `0.0.0.0:5080` y `0.0.0.0:5081`, y agrega:
 
 ```text
 # FrontendEstadisticas
-Servicios__Estadisticas__DireccionBase=http://IP_DE_ANDREA:18080/demo/api/v1/
+Servicios__Estadisticas__DireccionBase=http://IP_DE_ANDREA:8080/demo/api/v1/
 Servicios__Estadisticas__UsarSimulado=false
 Frontends__ApuestasUrl=http://IP_DE_FERNANDO:5081
 
 # FrontendPublico
-Servicios__Estadisticas__DireccionBase=http://IP_DE_ANDREA:18080/demo/api/v1/
+Servicios__Estadisticas__DireccionBase=http://IP_DE_ANDREA:8080/demo/api/v1/
 Servicios__Estadisticas__UsarSimulado=false
 Servicios__UTNGolCoin__DireccionBase=http://IP_DE_MAYRA:5001/api/
 Servicios__UTNGolCoin__UsarSimulado=false
