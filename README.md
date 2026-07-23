@@ -60,6 +60,30 @@ Soluciones correctas:
 
 Requisito: [Make](https://www.gnu.org/software/make/) (viene en macOS/Linux) y SDK de .NET 9+.
 
+### Windows con Visual Studio 2022
+
+Abre `UTNGolMundial2026.slnx`. En **Configurar proyectos de inicio**, selecciona
+inicio múltiple para `FrontendEstadisticas` y `FrontendPublico`.
+
+En los perfiles HTTP configura `0.0.0.0:5080` y `0.0.0.0:5081`, y agrega:
+
+```text
+# FrontendEstadisticas
+Servicios__Estadisticas__DireccionBase=http://IP_DE_ANDREA:18080/demo/api/v1/
+Servicios__Estadisticas__UsarSimulado=false
+Frontends__ApuestasUrl=http://IP_DE_FERNANDO:5081
+
+# FrontendPublico
+Servicios__Estadisticas__DireccionBase=http://IP_DE_ANDREA:18080/demo/api/v1/
+Servicios__Estadisticas__UsarSimulado=false
+Servicios__UTNGolCoin__DireccionBase=http://IP_DE_MAYRA:5001/api/
+Servicios__UTNGolCoin__UsarSimulado=false
+Frontends__EstadisticasUrl=http://IP_DE_FERNANDO:5080
+```
+
+Ejecuta ambos con **F5** y permite `5080/5081` en redes privadas. Visual Studio
+reemplaza `make run`; no hace falta instalar VS Code.
+
 ## APIs reales
 
 `make stack` fuerza `UsarSimulado=false`: toda alta, predicción, transacción y
