@@ -119,52 +119,56 @@ curl http://192.168.1.35:5000/api/salud
 | Se queda colgado | Firewall de la máquina del backend bloqueando |
 | 404 | La app corre pero la ruta/contexto está mal (revisar `/demo`) |
 
-## 5. Conectar los frontends a los backends reales
+## 5. Conectar los frontends (IPs fáciles: `equipo.env`)
 
-Edita `appsettings.json` en **ambos** frontends
-(`frontend-estadisticas-mvc/` y `frontend-publico-mvc/`):
-
-```json
-"Estadisticas": {
-  "DireccionBase": "http://192.168.1.34:8080/demo/api/v1/",
-  "UsarSimulado": false
-},
-"UTNGolCoin": {
-  "DireccionBase": "http://192.168.1.35:5000/api/",
-  "UsarSimulado": false
-}
-```
-
-(El frontend de estadísticas solo tiene la sección `Estadisticas`.)
-
-Luego reinicia:
+No hace falta editar `appsettings.json` cada vez. En la raíz del repo:
 
 ```bash
+cp equipo.env.example equipo.env   # una sola vez
+# edita equipo.env con las IPs del día
+make urls                          # verifica qué va a usar
 make stop && make run
 ```
 
-Prueba de integración completa:
+### 5.1 Todo en una sola PC (probar en conjunto local)
 
-1. `http://localhost:5080` debe mostrar los partidos reales de la base de Andrea.
-2. Registrarse en `http://localhost:5081` debe crear la billetera en el
-   servicio de Mayra (Guacales llama a `POST /api/billeteras`).
-3. Hacer una predicción y registrar el resultado del partido debe liquidar
-   las UTNGolCoin (`POST /api/liquidaciones/{id}`).
+1. Andrea/Mayra: Guacales en `:8080` y UTNGolCoin en `:5000` (escuchando `0.0.0.0` o localhost).
+2. `equipo.env` deja los defaults de `equipo.env.example` (localhost).
+3. `make run` → `:5080` y `:5081`.
+4. Flujo: ver partidos → registrarse → apostar → (Joel o curl) registrar resultado → ver premio.
 
-## 6. Si el equipo no está en la misma red
+### 5.2 Mañana: cada uno en su máquina (misma Wi‑Fi)
 
-Quien tenga el backend puede exponerlo con un túnel, por ejemplo con
-[ngrok](https://ngrok.com/):
+En `equipo.env` de **quien corra los frontends**:
 
 ```bash
-ngrok http 8080   # Andrea (Guacales)
-ngrok http 5000   # Mayra (UTNGolCoin)
+URL_GUACALES=http://IP_ANDREA:8080/demo/api/v1/
+URL_UTNGOLCOIN=http://IP_MAYRA:5000/api/
+USAR_SIMULADO=false
+BIND_EST=localhost:5080
+BIND_APU=localhost:5081
 ```
 
-ngrok entrega una URL pública tipo `https://xxxx.ngrok.io`. Esa URL se usa en
-los `curl` de la sección 4 y en `DireccionBase` de la sección 5
-(para Guacales: `https://xxxx.ngrok.io/demo/api/v1/`).
+Si estadísticas y apuestas van en PCs distintas, cambia también `BIND_EST` / `BIND_APU`
+a la IP de cada PC (para que los enlaces entre portales no apunten a localhost ajeno).
 
+`make urls` muestra la configuración efectiva. Reinicia con `make stop && make run`.
+
+Prueba de integración completa:
+
+1. `http://localhost:5080` muestra partidos reales de Guacales.
+2. Registrarse en `:5081` crea billetera en Mayra (Guacales → `POST /api/billeteras`).
+3. Predicción + resultado oficial → liquidación (`POST /api/liquidaciones/{id}`).
+
+## 6. Si el equipo no está en la misma red (último recurso)
+
+Solo si no hay LAN común: túnel tipo [ngrok](https://ngrok.com/). **No** dejes
+URLs de ngrok fijas en `appsettings.json`; ponlas en `equipo.env` ese día:
+
+```bash
+URL_GUACALES=https://xxxx.ngrok-free.dev/demo/api/v1/
+URL_UTNGOLCOIN=https://yyyy.ngrok-free.dev/api/
+```
 ## 7. Problemas frecuentes
 
 | Problema | Solución |

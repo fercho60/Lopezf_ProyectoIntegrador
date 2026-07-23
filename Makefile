@@ -1,29 +1,29 @@
 # UTN GolMundial 2026 — frontends públicos
-# Uso: make help | make run | make estadisticas | make apuestas | make stop
+# Uso: make help | make run | make urls | make stop
 #
-# Por defecto (red del equipo):
-#   estadísticas → 172.28.114.135:5080
-#   apuestas     → 172.28.114.136:5081
-# Solo local:
-#   make run BIND_EST=localhost:5080 BIND_APU=localhost:5081
-# Misma máquina en LAN:
-#   make run BIND_EST=172.28.114.135:5080 BIND_APU=172.28.114.135:5081
+# IPs y backends: editar equipo.env (copiar desde equipo.env.example).
+# Local por defecto. Mañana en LAN: solo cambia URL_* y BIND_* en equipo.env.
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ESTADISTICAS := $(ROOT)/frontend-estadisticas-mvc
 APUESTAS := $(ROOT)/frontend-publico-mvc
 
-# host o host:puerto — defaults de red del equipo
-BIND_EST ?= 172.28.114.135:5080
-BIND_APU ?= 172.28.114.136:5081
+# Carga overrides locales (no versionados). Si no existe, usan defaults de abajo.
+-include $(ROOT)/equipo.env
 
-# Parsea host y puerto desde BIND_* (acepta "host" o "host:puerto")
+# Defaults = todo en esta máquina (probar en conjunto local)
+URL_GUACALES ?= http://localhost:8080/demo/api/v1/
+URL_UTNGOLCOIN ?= http://localhost:5000/api/
+USAR_SIMULADO ?= false
+BIND_EST ?= localhost:5080
+BIND_APU ?= localhost:5081
+
+# host o host:puerto
 HOST_EST := $(shell echo "$(BIND_EST)" | sed 's/:.*//')
 HOST_APU := $(shell echo "$(BIND_APU)" | sed 's/:.*//')
 PORT_EST := $(shell echo "$(BIND_EST)" | awk -F: '{print (NF > 1 ? $$NF : "5080")}')
 PORT_APU := $(shell echo "$(BIND_APU)" | awk -F: '{print (NF > 1 ? $$NF : "5081")}')
 
-# Escucha en todas las interfaces (accesible por LAN y por localhost).
 LISTEN ?= 0.0.0.0
 
 URL_EST := http://$(HOST_EST):$(PORT_EST)
@@ -31,41 +31,54 @@ URL_APU := http://$(HOST_APU):$(PORT_APU)
 LISTEN_EST := http://$(LISTEN):$(PORT_EST)
 LISTEN_APU := http://$(LISTEN):$(PORT_APU)
 
-.PHONY: help run estadisticas apuestas stop build clean status
+.PHONY: help run estadisticas apuestas stop build clean status urls
 
 help: ## Muestra los targets disponibles
 	@echo "Frontends UTN GolMundial 2026"
 	@echo ""
-	@echo "  make run            Levanta estadísticas + apuestas en paralelo"
+	@echo "  make run            Levanta estadísticas + apuestas"
+	@echo "  make urls           Muestra IPs/URLs activas (desde equipo.env)"
 	@echo "  make estadisticas   Solo portal invitado → $(URL_EST)"
 	@echo "  make apuestas       Solo portal apuestas → $(URL_APU)"
-	@echo "  make stop           Detiene lo que escuche en $(PORT_EST) y $(PORT_APU)"
-	@echo "  make build          Compila ambos proyectos"
-	@echo "  make status         Muestra qué puertos están ocupados"
-	@echo "  make clean          Limpia bin/obj de ambos frontends"
+	@echo "  make stop           Libera $(PORT_EST) y $(PORT_APU)"
+	@echo "  make build | status | clean"
 	@echo ""
-	@echo "Defaults:       BIND_EST=$(BIND_EST)  BIND_APU=$(BIND_APU)"
-	@echo "Links:          $(URL_EST)  |  $(URL_APU)"
-	@echo "Escucha:        $(LISTEN):$(PORT_EST) / $(LISTEN):$(PORT_APU)"
-	@echo "Solo local:     make run BIND_EST=localhost:5080 BIND_APU=localhost:5081"
+	@echo "Config:  cp equipo.env.example equipo.env   # luego edita IPs"
+	@echo "Ahora:   Guacales=$(URL_GUACALES)"
+	@echo "         UTNGolCoin=$(URL_UTNGOLCOIN)"
+	@echo "         Simulado=$(USAR_SIMULADO)  FE=$(URL_EST) | $(URL_APU)"
+
+urls: ## Imprime la configuración efectiva
+	@echo "=== equipo.env / defaults ==="
+	@echo "URL_GUACALES   = $(URL_GUACALES)"
+	@echo "URL_UTNGOLCOIN = $(URL_UTNGOLCOIN)"
+	@echo "USAR_SIMULADO  = $(USAR_SIMULADO)"
+	@echo "BIND_EST       = $(BIND_EST)  → $(URL_EST)  (listen $(LISTEN_EST))"
+	@echo "BIND_APU       = $(BIND_APU)  → $(URL_APU)  (listen $(LISTEN_APU))"
 	@echo ""
-	@echo "Nota: no uses 'cd A && dotnet run' dos veces en la misma terminal."
+	@echo "Mañana en LAN: edita solo equipo.env y reinicia (make stop && make run)."
 
 run: ## Ambos frontends a la vez
-	@echo "→ Estadísticas $(URL_EST)  (listen $(LISTEN_EST))"
-	@echo "→ Apuestas     $(URL_APU)  (listen $(LISTEN_APU))"
+	@echo "→ Estadísticas $(URL_EST)  |  Apuestas $(URL_APU)"
+	@echo "  Guacales=$(URL_GUACALES)  UTNGolCoin=$(URL_UTNGOLCOIN)  simulado=$(USAR_SIMULADO)"
 	@echo "  (Ctrl+C para detener ambos)"
 	@$(MAKE) -j2 estadisticas apuestas
 
 estadisticas: ## Portal invitado (solo consulta)
-	@echo "→ $(URL_EST)"
+	@echo "→ $(URL_EST)  ← Guacales $(URL_GUACALES)"
 	cd "$(ESTADISTICAS)" && \
+		Servicios__Estadisticas__DireccionBase="$(URL_GUACALES)" \
+		Servicios__Estadisticas__UsarSimulado="$(USAR_SIMULADO)" \
 		Frontends__ApuestasUrl="$(URL_APU)" \
 		dotnet run --no-launch-profile --urls "$(LISTEN_EST)"
 
 apuestas: ## Portal de apuestas (registro para predecir)
-	@echo "→ $(URL_APU)"
+	@echo "→ $(URL_APU)  ← Guacales $(URL_GUACALES) | UTNGolCoin $(URL_UTNGOLCOIN)"
 	cd "$(APUESTAS)" && \
+		Servicios__Estadisticas__DireccionBase="$(URL_GUACALES)" \
+		Servicios__Estadisticas__UsarSimulado="$(USAR_SIMULADO)" \
+		Servicios__UTNGolCoin__DireccionBase="$(URL_UTNGOLCOIN)" \
+		Servicios__UTNGolCoin__UsarSimulado="$(USAR_SIMULADO)" \
 		Frontends__EstadisticasUrl="$(URL_EST)" \
 		dotnet run --no-launch-profile --urls "$(LISTEN_APU)"
 
