@@ -12,8 +12,8 @@ APUESTAS := $(ROOT)/frontend-publico-mvc
 -include $(ROOT)/equipo.env
 
 # Defaults = todo en esta máquina (probar en conjunto local)
-URL_GUACALES ?= http://localhost:8080/demo/api/v1/
-URL_UTNGOLCOIN ?= http://localhost:5000/api/
+URL_GUACALES ?= http://localhost:18080/demo/api/v1/
+URL_UTNGOLCOIN ?= http://localhost:5001/api/
 USAR_SIMULADO ?= false
 BIND_EST ?= localhost:5080
 BIND_APU ?= localhost:5081
@@ -31,7 +31,7 @@ URL_APU := http://$(HOST_APU):$(PORT_APU)
 LISTEN_EST := http://$(LISTEN):$(PORT_EST)
 LISTEN_APU := http://$(LISTEN):$(PORT_APU)
 
-.PHONY: help run estadisticas apuestas stop build clean status urls
+.PHONY: help run estadisticas apuestas stop build clean status urls stack stack-stop stack-status stack-logs prueba-integracion
 
 help: ## Muestra los targets disponibles
 	@echo "Frontends UTN GolMundial 2026"
@@ -42,6 +42,13 @@ help: ## Muestra los targets disponibles
 	@echo "  make apuestas       Solo portal apuestas → $(URL_APU)"
 	@echo "  make stop           Libera $(PORT_EST) y $(PORT_APU)"
 	@echo "  make build | status | clean"
+	@echo ""
+	@echo "Pila integrada nativa (sin Docker):"
+	@echo "  make stack          Levanta bases, APIs y frontends en background"
+	@echo "  make stack-status   Muestra procesos y salud de toda la pila"
+	@echo "  make stack-logs     Sigue los logs (Ctrl+C para salir)"
+	@echo "  make stack-stop     Detiene únicamente los procesos de la pila"
+	@echo "  make prueba-integracion  Prueba persistencia y liquidación reales"
 	@echo ""
 	@echo "Config:  cp equipo.env.example equipo.env   # luego edita IPs"
 	@echo "Ahora:   Guacales=$(URL_GUACALES)"
@@ -102,3 +109,18 @@ clean: ## Limpiar artefactos de build
 	cd "$(APUESTAS)" && dotnet clean
 	@rm -rf "$(ESTADISTICAS)/bin" "$(ESTADISTICAS)/obj" "$(APUESTAS)/bin" "$(APUESTAS)/obj"
 	@echo "Limpieza lista."
+
+stack: ## Pila completa nativa en background
+	@"$(ROOT)/scripts/stack.sh"
+
+stack-stop: ## Detiene la pila completa
+	@"$(ROOT)/scripts/stack-stop.sh"
+
+stack-status: ## Estado y salud de la pila completa
+	@"$(ROOT)/scripts/stack-status.sh"
+
+stack-logs: ## Sigue los logs de la pila completa
+	@"$(ROOT)/scripts/stack-logs.sh"
+
+prueba-integracion: ## Verifica sincronización real Guacales ↔ UTNGolCoin
+	@"$(ROOT)/scripts/prueba-integracion-real.sh"

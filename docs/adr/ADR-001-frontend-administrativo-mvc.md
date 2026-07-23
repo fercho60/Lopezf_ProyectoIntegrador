@@ -10,13 +10,13 @@ El enunciado exige dos frontends con tecnologías distintas: uno en JSF y otro e
 (Blazor o ASP.NET Core MVC/Razor). El plan interno sugería JSF + PrimeFaces para el
 panel administrativo y ASP.NET Core MVC para el frontend público.
 
-## Decisión
+## Decisión y desviación aceptada
 
 El frontend administrativo (Persona 3 — Joel) se implementa en **ASP.NET Core MVC**,
 no en JSF. El frontend público (Persona 4 — Fernando) permanece en **ASP.NET Core MVC**
 con dos aplicaciones (estadísticas invitado y apuestas).
 
-La heterogeneidad exigida se cubre así:
+La solución implementada queda así:
 
 | Componente | Tecnología |
 |---|---|
@@ -24,6 +24,10 @@ La heterogeneidad exigida se cubre así:
 | Backend UTNGolCoin | ASP.NET Core Web API (C#) |
 | Frontend administrativo | ASP.NET Core MVC (C#) |
 | Frontend público | ASP.NET Core MVC (C#) |
+
+Esta decisión **no cumple** la regla explícita del enunciado que exige un frontend
+JSF y otro C#. El equipo la registra como una desviación consciente, no como
+equivalencia tecnológica ni como cumplimiento de la restricción.
 
 ## Alternativa descartada
 
@@ -36,17 +40,17 @@ JSF + PrimeFaces para el administrativo.
    requisito de negocio distinto.
 2. El administrativo es un panel CRUD/reportes: MVC + Razor cumple el diseño sobrio
    tipo panel de control sin necesidad de componentes JSF.
-3. La restricción obligatoria de tecnologías distintas se cumple entre **backends**
-   (Jakarta EE vs .NET) y entre **pares backend–frontend del dominio Java**
-   (Guacales Jakarta vs frontends C#). El enunciado pide “uno en JSF y otro en C#”
-   como opciones del catálogo; el equipo prioriza entregar integración REST estable
-   entre los cuatro componentes sobre forzar JSF solo por checklist.
+3. La heterogeneidad sí se conserva entre los **backends** (Jakarta EE y .NET),
+   pero no entre los frontends. El equipo prioriza demostrar integración REST real,
+   persistencia separada y liquidación completa sobre una migración tardía del panel.
 4. Migrar a JSF ahora retrasaría registro de resultados → liquidación (flujo crítico
    de la Semana 4) sin mejorar la experiencia del administrador.
 
 ## Consecuencias
 
 - Hay que declarar esta ADR en la defensa y en Modelamiento de Software.
+- El docente puede descontar la parte correspondiente a heterogeneidad de frontends;
+  esta ADR explica la decisión, pero no elimina ese riesgo.
 - No se mantiene una carpeta JSF funcional en el monorepo de Fernando: el admin
   vive en el repositorio de Joel y se integra por HTTP, no por copia de código.
 - Si el docente exige JSF de forma inflexible, quedaría como deuda: reimplementar

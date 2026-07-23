@@ -364,3 +364,7 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Pila local nativa (bases, WildFly, logs y PID)
+.stack/
+logs/

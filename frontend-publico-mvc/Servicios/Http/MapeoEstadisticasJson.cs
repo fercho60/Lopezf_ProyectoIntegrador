@@ -46,12 +46,14 @@ public static class MapeoEstadisticasJson
             return FaseTorneo.FaseDeGrupos;
         }
 
-        if (normalizado.Contains("DIECISEIS") || normalizado.Contains("16AV"))
+        if (normalizado == "ROUND_OF_32"
+            || normalizado.Contains("DIECISEIS")
+            || normalizado.Contains("16AV"))
         {
             return FaseTorneo.Dieciseisavos;
         }
 
-        if (normalizado.Contains("OCTAV"))
+        if (normalizado == "ROUND_OF_16" || normalizado.Contains("OCTAV"))
         {
             return FaseTorneo.Octavos;
         }

@@ -9,39 +9,42 @@ Plataforma web distribuida para el seguimiento estadístico y predicciones del M
 
 | Componente | Tecnología | Origen | Carpeta |
 |---|---|---|---|
-| Servicio de Estadísticas | Jakarta EE + PostgreSQL | [GuacalesA](https://github.com/Andrea25102025/GuacalesA_ProyectoIntegrador.git) | `backend-estadisticas-java/` |
-| Servicio UTNGolCoin | ASP.NET Core + MySQL | [SantacruzMayra](https://github.com/Rocio7514/SantacruzMayra_Proyecto_Integrador.git) | `backend-utngolcoin-dotnet/` |
-| Frontend Administrativo | ASP.NET Core MVC | [PumaJoel](https://github.com/JoelPuma2004/PumaJoel_ProyectoIntegrador.git) | referencia externa (placeholder `frontend-administrativo-jsf/`) |
+| Servicio de Estadísticas | Jakarta EE + PostgreSQL | [GuacalesA](https://github.com/Andrea25102025/GuacalesA_ProyectoIntegrador.git) | repo hermano `../GuacalesA_ProyectoIntegrador/` |
+| Servicio UTNGolCoin | ASP.NET Core + MySQL | [SantacruzMayra](https://github.com/Rocio7514/SantacruzMayra_Proyecto_Integrador.git) | repo hermano `../SantacruzMayra_Proyecto_Integrador/` |
+| Frontend Administrativo | ASP.NET Core MVC | [PumaJoel](https://github.com/JoelPuma2004/PumaJoel_ProyectoIntegrador.git) | repo hermano `../PumaJoel_ProyectoIntegrador/` |
 | **Frontend estadísticas (invitado)** | ASP.NET Core MVC | Persona 4 | **`frontend-estadisticas-mvc/`** → `:5080` |
 | **Frontend apuestas** | ASP.NET Core MVC | Persona 4 | **`frontend-publico-mvc/`** → `:5081` |
 
 ```
-Invitado (:5080) ──consulta──► Guacales :8080/demo/api/v1
+Invitado (:5080) ──consulta──► Guacales :18080/demo/api/v1
        │
        └──link (nueva pestaña)──► Apuestas (:5081) ──auth/stats──► Guacales
                                          │
-                                         └──billetera/predicciones──► UTNGolCoin :5000/api
+                                         └──billetera/predicciones──► UTNGolCoin :5001/api
 ```
 
-## Cómo correr los frontends (Makefile)
+## Levantar todo local, real y sin Docker
 
 > Guía completa: [`docs/GUIA-EJECUCION.md`](docs/GUIA-EJECUCION.md)
+> Carga manual: [`docs/CARGA-MANUAL-OCTAVOS.md`](docs/CARGA-MANUAL-OCTAVOS.md)
 
-**IPs en un solo archivo:** copia `equipo.env.example` → `equipo.env` y edita ahí
-Guacales, UTNGolCoin y los puertos. `make run` inyecta esas URLs (no hace falta
-tocar `appsettings.json` cada día).
+Los cuatro repositorios deben estar clonados como carpetas hermanas. La primera
+ejecución descarga WildFly en `.stack/`; PostgreSQL, MySQL, Java 21 y Maven son
+procesos nativos instalados con Homebrew.
 
 ```bash
 cp equipo.env.example equipo.env   # una vez
-make urls                          # ver configuración
-make run                           # :5080 + :5081 (localhost por defecto)
-make stop
+make stack                         # bases + APIs + admin + portales
+make prueba-integracion            # predicción y liquidación reales
+make stack-status
+make stack-stop
 ```
 
 | Portal | URL local |
 |---|---|
 | Estadísticas (invitado) | `http://localhost:5080` |
 | Apuestas | `http://localhost:5081` |
+| Administración | `http://localhost:5203` |
 
 Mañana en LAN: solo cambias `URL_GUACALES`, `URL_UTNGOLCOIN` (y si aplica `BIND_*`)
 en `equipo.env`.
@@ -57,19 +60,13 @@ Soluciones correctas:
 
 Requisito: [Make](https://www.gnu.org/software/make/) (viene en macOS/Linux) y SDK de .NET 9+.
 
-## Modo simulado vs APIs reales
+## APIs reales
 
-Por defecto `UsarSimulado=true` (los frontends corren solos con `make run`).
-Para acoplar con backends reales: WildFly Guacales en el puerto 8080 + UTNGolCoin en el puerto 5000, y pon `UsarSimulado: false` en ambos `appsettings.json`.
+`make stack` fuerza `UsarSimulado=false`: toda alta, predicción, transacción y
+liquidación se persiste en PostgreSQL/MySQL. El código simulado antiguo no forma
+parte del flujo integrado.
 
 Guacales, al registrar usuario o resultado, llama a UTNGolCoin (`POST /api/billeteras` y `POST /api/liquidaciones/{id}`).
-
-### Usuarios de prueba (modo simulado, portal de apuestas)
-
-| Correo | Contraseña |
-|---|---|
-| `diego@utn.edu.ec` | `Clave123!` |
-| `maria@utn.edu.ec` | `Clave123!` |
 
 ## Split del frontend público
 
@@ -82,14 +79,18 @@ El frontend público se dividió en **dos aplicaciones ASP.NET** independientes:
 
 - En estadísticas, el CTA **“Ir a apuestas y registrarme”** abre el portal `:5081` en **nueva pestaña**.
 - En apuestas, hay enlace de vuelta al portal de estadísticas (invitado).
-- Ambas pueden consumir Guacales/UTNGolCoin por HTTP o usar simulados (`UsarSimulado`).
+- Ambas consumen Guacales/UTNGolCoin por HTTP durante la ejecución integrada.
 
 Detalle del diseño: [`docs/plan/PLAN.md`](docs/plan/PLAN.md) y el plan de integración en Cursor.
 
-## Backends
+## Repositorios de los dueños
 
-- Estadísticas: ver `backend-estadisticas-java/README-SETUP.md` (WildFly + PostgreSQL).
-- UTNGolCoin: ver `backend-utngolcoin-dotnet/README.md` (MySQL, puerto 5000).
+- Estadísticas: `../GuacalesA_ProyectoIntegrador/` (Andrea).
+- UTNGolCoin: `../SantacruzMayra_Proyecto_Integrador/` (Mayra).
+- Administración: `../PumaJoel_ProyectoIntegrador/` (Joel).
+
+Las carpetas de backend que aún existen aquí son copias históricas y no son las
+que modifica ni levanta `make stack`.
 
 ## Reglas de UTNGolCoin
 
