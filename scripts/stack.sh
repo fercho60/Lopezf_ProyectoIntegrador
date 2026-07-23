@@ -152,6 +152,7 @@ ensure_wildfly() {
     </resources>
     <dependencies>
         <module name="java.sql"/>
+        <module name="java.management"/>
         <module name="java.naming"/>
         <module name="jakarta.transaction.api"/>
     </dependencies>
